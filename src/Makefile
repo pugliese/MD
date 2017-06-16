@@ -6,8 +6,10 @@ LD = $(CC)
 SOURCE_C = $(wildcard *.c)
 OBJECTS_C = $(patsubst %.c, ../bin/%_c.o, $(SOURCE_C))
 
+
 CFLAGS = -std=gnu99 -O3 -Wall
-EXECUTABLE = ../bin/md.e
+EXECUTABLE1 = ../bin/md.e
+EXECUTABLE2 = ../bin/table.e
 
 default: help
 
@@ -18,13 +20,16 @@ Options:\n\n\
   make executable:    compiler makes executable\n\
   make all:           build all previous\n\
   make clean:         delete output files\n\
-  make help:          display this help"
+  make help:          display this help
+	make table:					compiler makes executable for table.e"
 
 objects: $(OBJECTS_C)
 
-executable: $(EXECUTABLE)
+executable: $(EXECUTABLE1)
 
-all: objects executable
+table: $(EXECUTABLE2)
+
+all: objects executable table
 
 ../bin/%_c.o: %.c
 	$(CC) $(CFLAGS) -c $^ -o ../bin/$@ -lm
@@ -33,4 +38,4 @@ all: objects executable
 	$(LD) $^ -o $@ -lm
 
 clean:
-	rm -rfv $(OBJECTS_C) $(EXECUTABLE)
+	rm -rfv $(OBJECTS_C) $(EXECUTABLE1) $(EXECUTABLE1)
