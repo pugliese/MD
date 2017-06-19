@@ -52,7 +52,7 @@ double* LUT_F(int N){    // Tabla con los modulos de la fuerza de Lennard-Jones
   return res;
 }
 
-int guardar_tablas(double *LUTF, double *LUTP, int N){
+int guardar_tablas(double *LUTP, double *LUTF, int N){
   FILE* fp = fopen("tablas.txt", "w");
   fprintf(fp, "%d\n", N);   // Guardo la longitud de la tabla en el primer renglon
   for(int i=0;i<N;i++){
@@ -66,40 +66,50 @@ int guardar_tablas(double *LUTF, double *LUTP, int N){
   return 0;
 }
 
-int leer_tablas(double *LUTF, double *LUTP){
+int leer_tablas(double **LUTP, double **LUTF){
   FILE* fp = fopen("tablas.txt","r");
-  int N,k;
+  int N,k=0;
   k=fscanf(fp,"%d\n",&N); // Leo la longitud de mi tabla
   double* tabP = malloc(N*sizeof(double));
   double* tabF = malloc(N*sizeof(double));
+  double aux;
   for(int i=0;i<N;i++){
-    k=fscanf(fp,"%lg",tabP+i);
+    k=k+fscanf(fp,"%lg",&aux);
+    tabP[i]=aux;
   }
   for(int i=0;i<N;i++){
-    k=fscanf(fp,"%lg",tabF+i);
+    k=k+fscanf(fp,"%lg",&aux);
+    tabF[i]=aux;
   }
-  LUTF = tabF;
-  LUTP = tabP;
-  return N;
+  fclose(fp);
+  *LUTF = tabF;
+  *LUTP = tabP;
+  return k/(2*N); // Si este valor no es 1, hubo algun error al leer
 }
 
-int main(int argc, char **argv){
+/*int main(int argc, char **argv){
   if (argc==2){
     int N;
-    sscanf(argv[1],"%d\n", &N);
+    sscanf(argv[1],"%d", &N);
+    printf("1\n");
     double* LUT1 = LUT_P(N);
     double* LUT2 = LUT_F(N);
     guardar_tablas(LUT1,LUT2,N);
-    free(LUT1);
-    free(LUT2);
-    leer_tablas(LUT1, LUT2);
+    printf("2\n");
+    double* LUT3;
+    double* LUT4;
+    leer_tablas(&LUT3, &LUT4);
+    printf("3\n");
     for(int i=0;i<N;i++){
-      printf("%lg %lf\n", LUT1[i], LUT2[i]);
+      printf("%lg %lg\n", LUT3[i], LUT4[i]);
     }
+    printf("5\n");
     free(LUT1);
     free(LUT2);
+    free(LUT3);
+    free(LUT4);
   }else{
     printf("Error: Introduzca cantidad de puntos\n");
   }
   return 0;
-}
+}*/

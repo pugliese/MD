@@ -23,21 +23,29 @@ int Inicializar (double* vector,int N,double rho, double m, double T){
 }
 
 int Llenar_Pos (double* vector,int N,double rho){
-
-  double a = pow((1/rho),1./3);
-  int L = ceil(pow(N,1./3));
-  int i;
-  for (int x=0;x<L;x++){
-    for (int y=0;y<L;y++){
-      for (int z=0;z<L;z++){
-        i = x+L*y+L*L*z ;
+  double Vol = N/rho;  // Volumen del recinto
+  int L = ceil(pow(N,1./3)); // Cantidad de puntos por "fila" asumiendo que hay L³ particulas, con N<=L³
+  double a = pow(Vol,1./3)/L; // Espaciado entre las L³ particulas imaginarias, algunas posiciones quedaran vacias
+  int i; // Indice de particula, se mueve entre 0 y N-1 y busco escribirlo en base L como i=x+y*L+z*L*L
+  int x,y,z;
+  for (i=0;i<N;i++){
+    x = i%L;          // Con esto tengo un mapeo unico que dada una particula
+    y = (i%(L*L))/L;  // me dice que posicion de mi arreglo de L*L*L como
+    z = i/(L*L);      // una terna de indices (x,y,z)
+    vector[i] = (a/2) + x*a;
+    vector[i+N] = (a/2) + y*a;
+    vector[i+2*N] = (a/2) + z*a;
+  }/* Lo nuevo es igual a lo de abajo, pero al reves para que sea posible tener un N no cubico
+  for (int x=0;x<=No;x++){
+    for (int y=0;y<=N1;y++){
+      for (int z=0;z<=N2;z++){
+        i = x+y*L+L*L*z;
         vector[i] = (a/2) + x*a;
         vector[i+N] = (a/2) + y*a;
         vector[i+2*N] = (a/2) + z*a;
       }
     }
-  }
-
+  }*/
   return 0 ;
 }
 
