@@ -49,6 +49,19 @@ int Calcular_Fuerzas(double *vector_posvel, double *vector_fuerza, int N, double
       }
     }
   }
+  /* Version alternativa sin Fij
+  for(int i=0;i<N;i++){
+  	for(int j=i+1;j<N;j++{
+  		R = Distancia(vector_posvel,N,i,j);
+  		F = Valor_LUT(LUTF,Ntabla,R);
+  		for(int k=0;k<3;k++){
+  			comp_k = F*fabs(vector_posvel[i+k*N]-vector_posvel[j+k*N])/R;
+  			vector_fuerza[i+k*N] = vector_fuerza[i+k*N]+comp_k;
+  			vector_fuerza[j+k*N] = vector_fuerza[j+k*N]-comp_k;
+  		}
+  	}
+  }
+  */
 
   free(Fij);
   return 0;
@@ -76,7 +89,7 @@ double Valor_LUT(double *LUT, int Ntabla, double R){
   double step = 3.0/Ntabla;
   double res = 0;
 
-  if(R>3) res = 0; //si es >3 devuelve 0, no hay interaccion pues no se ven;
+  if(R>=3) res = 0; //si es >3 devuelve 0, no hay interaccion pues no se ven;
   else if(R<step) res = LUT[0]; //sino, si es menor que step, devuelve la minima posicion;
   else res = Interpol(LUT,R,step); //y sino, interpola linealmente.
 
@@ -91,11 +104,13 @@ double Valor_LUT(double *LUT, int Ntabla, double R){
 
 double Interpol(double *LUT, double R, double step){
 
-  int idx = floor(R/step);
+  int idx = floor(R/step)-1; // El -1 es porque LUT[i] = Fuerza(step*(i+1)) (sino, LUT[0]=Fuerza(0)=Inf)
 
   double m = (LUT[idx+1]-LUT[idx])/step;
   double b = LUT[idx]-m*idx*step;
 
   return b + m * R;
-
+  /* Version sin calcular b; es lo mismo pero... hay una cuenta menos!!!
+  return LUT[idx]+(R-step*idx)*m;
+  */
 }
