@@ -1,0 +1,47 @@
+#include "avanzar.h"
+#include "inicializar.h"
+#include "tablas.h"
+#include <stdio.h>
+#include <stdlib.h>
+#include <time.h>
+#include <math.h>
+
+int main(){
+
+  int N=2;
+  int Ntabla=30;
+  double rho=0.8442;
+  double m=1;
+  double T=0.728;
+  double *vector = malloc(6*N*sizeof(double));
+  double *vector_fza = malloc(3*N*sizeof(double));
+
+  srand(time(NULL));
+
+  double *LUTF; // = malloc(Ntabla*sizeof(double));
+  double *LUTP; // = malloc(Ntabla*sizeof(double));
+  printf("%d\n",leer_tablas(&LUTF, &LUTP));
+
+  Inicializar(vector, N, rho, m,T);
+
+/*  for(int i=0;i<Ntabla;i++){
+    printf("%lg %lg\n", LUTF[i], LUTP[i]);
+  }*/
+
+  Calcular_Fuerzas(vector,vector_fza, N, LUTF, Ntabla);
+
+  for (int i=0;i<N;i++){
+    printf("particula %d \n",i);
+    printf("r : %f %f %f \n",vector[i],vector[i+N],vector[i+2*N]);
+    printf("v : %f %f %f \n",vector[i+3*N],vector[i+4*N],vector[i+5*N]);
+    printf("F: %f %f %f\n", vector_fza[i], vector_fza[i+N], vector_fza[i+2*N]);
+  }
+
+  free(vector);
+  free(vector_fza);
+  free(LUTF);
+  free(LUTP);
+
+  return 0;
+
+}

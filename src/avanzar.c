@@ -14,7 +14,7 @@ int Verlet(double *vector_posvel, double *vector_fuerza, int N,
 }
 
 
-//Fij es una matriz antisimetrica de traza nula que guarda la fza que ejerce la
+//Fij es una matriz antisimetrica que guarda la fza que ejerce la
 //particula j sobre la particula i. Proyectando adecuadamente cada termino, la
 //suma sobre una fila me da la fuerza total sobre la particula.
 
@@ -45,7 +45,7 @@ int Calcular_Fuerzas(double *vector_posvel, double *vector_fuerza, int N, double
   for(int i=0; i<N; i++){
     for(int j=0; j<3; j++){
       for(int k=0; k<N; k++){
-        vector_fuerza[i+j*N] = vector_fuerza[i+j*N]+(vector_posvel[k+j*N]-vector_posvel[i+j*N])*Fij[i*N+k];
+        vector_fuerza[i+j*N] = vector_fuerza[i+j*N]+fabs(vector_posvel[k+j*N]-vector_posvel[i+j*N])*Fij[i*N+k];
       }
     }
   }
@@ -74,15 +74,10 @@ double Distancia(double *pos, int N, int i, int j){
 double Valor_LUT(double *LUT, int Ntabla, double R){
 
   double step = 3.0/Ntabla;
-  int idx = floor(R/step);
   double res = 0;
 
   if(R>3) res = 0; //si es >3 devuelve 0, no hay interaccion pues no se ven;
-  else if(R<step) res = LUT[0]; //sino, si es menor que step,
-                                //devuelve la minima posicion;
-  else if(R/step == idx) res = LUT[idx]; // sino, si justo R es un valor
-                                         //perteneciente a alguna posicion
-                                         //de la LUT, devuelve ese valor;
+  else if(R<step) res = LUT[0]; //sino, si es menor que step, devuelve la minima posicion;
   else res = Interpol(LUT,R,step); //y sino, interpola linealmente.
 
   return res;

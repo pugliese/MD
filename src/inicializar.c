@@ -59,13 +59,13 @@ int Llenar_Vel (double* vector,int N,double rho,double m, double T){
   double vmean[3]={0,0,0};
 
   for (int j=3;j<6;j++){
-    for (int i=j*N;i<(j+1)*N;i++){
+    for (int i=0;i<N;i++){
       vmean[j-3] = vmean[j-3] + vector[i+j*N]/N ;
     }
   }
 
   for (int j=3;j<6;j++){
-    for (int i=j*N;i<(j+1)*N;i++){
+    for (int i=0;i<N;i++){
       vector[i+j*N] = vector[i+j*N] - vmean[j-3];
     }
   }

@@ -1,6 +1,6 @@
 # MD
 Checklist:
-- Avanzar (con Verlet)
-- Fuerza
-- Funciones de energia (potencial y cinetica)
-- Generalizar Inicializar para cualquier N  <- Cufa
+[ ] Avanzar (con Verlet)
+[X] Fuerza
+[ ] Funciones de energia (potencial y cinetica)
+[X] Generalizar Inicializar para cualquier N  <- Cufa
