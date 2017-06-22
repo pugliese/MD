@@ -10,20 +10,24 @@ double Lennard_Jones(double r){
   return (1.0/r6-1)*4.0/r6;
 }
 
+// Acá mezclamos 2 métodos, el potencial es desplazado un valor
+// constante para que solo sea necesario un spline de grado 2
+// Aclaro esto porque el valor minimo ahora es -1+So-Fo/4 ~ -1
+// Para que se den una idea, So-Fo/4 ~ 7E-3
 double* LUT_P(int N){
   double step = 3.0/N;
   int m= floor(2.5/step);
   double r=0;
   double* res=malloc(N*sizeof(double));
-  for(int i=0;i<m;i++){
-    r = r+step;
-    res[i] = Lennard_Jones(r);
-  }
   double Fo = Fuerza_Lennard_Jones(2.5);
   double So = Lennard_Jones(2.5);
+  for(int i=0;i<m;i++){
+    r = r+step;
+    res[i] = Lennard_Jones(r)-(So-Fo/4); // Corro para que V(2.5) = Fo/4 (lo que vale la interpolacion)
+  }
   for(int i=m;i<N;i++){
     r = r+step;
-    res[i] = -Fo*(r-3.0)*(r-3.0)+So-Fo/4;
+    res[i] = -Fo*(r-3.0)*(r-3.0);  // En r=2.5 vale Fo*(0.5)² = Fo/4
   }
   return res;
 }
