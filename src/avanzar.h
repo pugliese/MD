@@ -7,5 +7,7 @@ int Calcular_Fuerzas(double *vector_posvel, double *vector_fuerza, int N, double
 double Distancia(double *pos, int N, int i, int j);
 double Valor_LUT(double *LUT, int Ntable, double R);
 double Interpol(double *LUT, double R, double step);
+int Verlet_pos(double *vector_posvel, double *vector_fuerza, int N,double m, double h);
+int Verlet_vel(double *vector_posvel, double *vector_fuerza,double *vector_fuerza_h int N,double m, double h);
 
 #endif
