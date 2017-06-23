@@ -28,7 +28,7 @@ int Verlet_pos(double *vector_posvel, double *vector_fuerza, int N,double m, dou
 
   for(int t=0;t<3*N;t++){
     vector_posvel[t] = vector_posvel[t] + vector_posvel[t+3*N]*h + 0.5*vector_fuerza[t]*h*h/m;
-    vector_posvel[t] = vector_posvel[t]-L*floor(vector_posvel[t]/L);
+    vector_posvel[t] = vector_posvel[t] - L*floor(vector_posvel[t]/L);
   }
 
   return 0 ;
