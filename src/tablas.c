@@ -88,7 +88,7 @@ int leer_tablas(double **LUTP, double **LUTF){
   fclose(fp);
   *LUTF = tabF;
   *LUTP = tabP;
-  return k/(2*N); // Si este valor no es 1, hubo algun error al leer
+  return N; // Si este valor no es 1, hubo algun error al leer
 }
 
 /*int main(int argc, char **argv){

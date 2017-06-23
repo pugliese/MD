@@ -15,23 +15,21 @@ int Inicializar (double* vector_posvel,double* vector_fuerza,int N,double* LUTF,
 //  double V = N/rho ;
 //  double a = V/N ;
 
-  Llenar_Pos(vector_posvel,N,rho);
+  double L = Llenar_Pos(vector_posvel,N,rho);
   Llenar_Vel(vector_posvel,N,rho,m,T);
-  Calcular_Fuerzas(vector_posvel,vector_fuerza,N,LUTF,Ntable);
+  Calcular_Fuerzas(vector_posvel,vector_fuerza,N,LUTF,Ntable,L);
 
   return 0 ;
 }
 
-int Llenar_Pos (double* vector,int N,double rho){
+double Llenar_Pos (double* vector,int N,double rho){
   double Vol = N/rho;  // Volumen del recinto
-  int L = pow(N,1./3); // Cantidad de puntos por "fila" asumiendo que hay L³ particulas, con N<=L³
+  int L = ceil(pow(N,1./3)); // Cantidad de puntos por "fila" asumiendo que hay L³ particulas, con N<=L³
   double a = pow(Vol,1./3)/L; // Espaciado entre las L³ particulas imaginarias, algunas posiciones quedaran vacias
   int i; // Indice de particula, se mueve entre 0 y N-1 y busco escribirlo en base L como i=x+y*L+z*L*L
-  int x,y,z;
-  //Lo nuevo es igual a lo de abajo, pero al reves para que sea posible tener un N no cubico
-  for (int x=0;x<N;x++){
-    for (int y=0;y<N;y++){
-      for (int z=0;z<N;z++){
+  for (int x=0;x<L;x++){
+    for (int y=0;y<L;y++){
+      for (int z=0;z<L;z++){
         i = x+y*L+L*L*z;
         vector[i] = (a/2) + x*a;
         vector[i+N] = (a/2) + y*a;
@@ -39,7 +37,7 @@ int Llenar_Pos (double* vector,int N,double rho){
       }
     }
   }
-  return 0 ;
+  return L*a ;
 }
 
 

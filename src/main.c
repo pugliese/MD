@@ -24,7 +24,7 @@ int main(int argc, char const *argv[]) {
     free(LUT1);
     free(LUT2);
   }else{
-    int N=30;
+    int N=512;
     double rho=0.8442;
     double m=1;
     double T=0.728;
@@ -36,6 +36,7 @@ int main(int argc, char const *argv[]) {
     int Ntable = leer_tablas(&LUTP, &LUTF);
 
     srand(time(NULL));
+
     Inicializar(vector,vector_fuerza, N,LUTF,Ntable, rho, m,T);
 
     for (int i=0;i<N;i++) {
@@ -48,7 +49,11 @@ int main(int argc, char const *argv[]) {
     for(int i = 0;i<3*N;i++) PromVel = PromVel + vector[3*N+i]*vector[3*N+i]/(3*N);
     printf("promedio velocidad = %f\n",PromVel);
 
-    free(vector);
+  free(vector);
+  free(vector_fuerza);
+  free(LUTP);
+  free(LUTF);
+
   }
   return 0;
 }
