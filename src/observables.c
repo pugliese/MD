@@ -1,5 +1,5 @@
 #include "observables.h"
-#include "avanzar.h"
+#include "funciones.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
