@@ -9,13 +9,13 @@ int Verlet(double *vector_posvel, double *vector_fuerza, int N,
             double *LUTF, double Ntabla, double m, double h) //pasito a pasito
 {
   //necesito unas fuerzas iniciales que vienen de arriba
-  double *vector_fuerza_h = malloc(N*3*sizeof(double))
+  double *vector_fuerza_h = malloc(N*3*sizeof(double));
 
   Verlet_pos(vector_posvel,vector_fuerza,N,m,h) ; //posiciones t+h
   Calcular_Fuerzas(vector_posvel,vector_fuerza_h,N,LUTF,Ntabla) ;//fzas t+h
   Verlet_vel(vector_posvel, vector_fuerza, vector_fuerza_h,N,m,h) ; //vel t+h
 
-  free vector_fuerza_h ;
+  free (vector_fuerza_h) ;
   return 0;
 }
 
@@ -32,7 +32,7 @@ int Verlet_pos(double *vector_posvel, double *vector_fuerza, int N,double m, dou
 }
 ///-*--------------------------------------------------------------------------*
 
-int Verlet_vel(double *vector_posvel, double *vector_fuerza,double *vector_fuerza_h int N,double m, double h){
+int Verlet_vel(double *vector_posvel, double *vector_fuerza,double *vector_fuerza_h, int N,double m, double h){
   //x=x-l*floor(x/l)
 
   for(int t=3*N;t<6*N;t++){

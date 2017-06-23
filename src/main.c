@@ -29,10 +29,14 @@ int main(int argc, char const *argv[]) {
     double m=1;
     double T=0.728;
     double* vector = malloc(6*N*sizeof(double));
+    double* vector_fuerza=malloc(3*N*sizeof(double));
+    double* LUTF ;
+    double* LUTP ;
+
+    int Ntable = leer_tablas(&LUTP, &LUTF);
 
     srand(time(NULL));
-
-    Inicializar(vector, N, rho, m,T);
+    Inicializar(vector,vector_fuerza, N,LUTF,Ntable, rho, m,T);
 
     for (int i=0;i<N;i++) {
       printf("particula %d \n",i);
