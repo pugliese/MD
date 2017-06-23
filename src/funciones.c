@@ -6,7 +6,7 @@
 
 double Delta(double *pos, int N, int comp, int i, int j, double L){
   double d=pos[i+comp*N]-pos[j+comp*N];
-  int beta = floor(2*d/L);
+  int beta = ceil(floor(4*d*d/(L*L))*0.2);  // Al hacerlo con los cuadrados, evito el tema del signo sin usar abs, pero necesito mas magia
   return beta*L+(1-2*beta)*d;
 }
 
@@ -34,11 +34,9 @@ double Valor_LUT(double *LUT, int Ntabla, double R){
   double res = 0;
 
   if(R>=3) res = 0; //si es >3 devuelve 0, no hay interaccion pues no se ven;
-  else if(R<step) res = LUT[0]; //sino, si es menor que step, devuelve la minima posicion;
   else res = Interpol(LUT,R,step); //y sino, interpola linealmente.
 
   return res;
-
 }
 
 //m y b son la pendiente y ordenada del segmento que une los dos puntos cuyo
@@ -51,10 +49,5 @@ double Interpol(double *LUT, double R, double step){
   int idx = floor(R/step)-1; // El -1 es porque LUT[i] = Fuerza(step*(i+1)) (sino, LUT[0]=Fuerza(0)=Inf)
 
   double m = (LUT[idx+1]-LUT[idx])/step;
-  double b = LUT[idx]-m*idx*step;
-
-  return b + m * R;
-  /* Version sin calcular b; es lo mismo pero... hay una cuenta menos!!!
   return LUT[idx]+(R-step*idx)*m;
-  */
 }
