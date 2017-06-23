@@ -3,6 +3,6 @@
 
 int Verlet(double *vector_posvel, double *vector_fuerza, int N,
             double *LUTF, double Ntabla, double m, double h);
-int Calcular_Fuerzas(double *vector_posvel, double *vector_fuerza, int N, double *LUTF, int Ntabla);
+int Calcular_Fuerzas(double *vector_posvel, double *vector_fuerza, int N, double *LUTF, int Ntabla, double L);
 
 #endif

@@ -4,14 +4,19 @@
 #include <time.h>
 #include <math.h>
 
+double Delta(double *pos, int N, int comp, int i, int j, double L){
+  double d=pos[i+comp*N]-pos[j+comp*N];
+  int beta = floor(2*d/L);
+  return beta*L+(1-2*beta)*d;
+}
 
+double Distancia(double *pos, int N, int i, int j, double L){
 
-double Distancia(double *pos, int N, int i, int j){
-
-  double dist = 0;
+  double dist = 0, dk;
 
   for(int k=0; k<3; k++){
-    dist = dist + (pos[i+k*N]-pos[j+k*N])*(pos[i+k*N]-pos[j+k*N]);
+    dk = Delta(pos, N, k, i, j, L);
+    dist = dist + dk*dk;
   }
 
   return sqrt(dist);
