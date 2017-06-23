@@ -11,7 +11,7 @@
 //m es la masa
 //T es el frio
 
-int Inicializar (double* vector_posvel,double* vector_fuerza,int N,double* LUTF,int Ntable,double rho, double m, double T){
+double Inicializar (double* vector_posvel,double* vector_fuerza,int N,double* LUTF,int Ntable,double rho, double m, double T){
 //  double V = N/rho ;
 //  double a = V/N ;
 
@@ -19,7 +19,7 @@ int Inicializar (double* vector_posvel,double* vector_fuerza,int N,double* LUTF,
   Llenar_Vel(vector_posvel,N,rho,m,T);
   Calcular_Fuerzas(vector_posvel,vector_fuerza,N,LUTF,Ntable,L);
 
-  return 0 ;
+  return L;
 }
 
 double Llenar_Pos (double* vector,int N,double rho){

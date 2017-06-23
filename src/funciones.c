@@ -6,8 +6,9 @@
 
 double Delta(double *pos, int N, int comp, int i, int j, double L){
   double d=pos[i+comp*N]-pos[j+comp*N];
-  int beta = ceil(floor(4*d*d/(L*L))*0.2);  // Al hacerlo con los cuadrados, evito el tema del signo sin usar abs, pero necesito mas magia
-  return beta*L+(1-2*beta)*d;
+  int beta = ceil(floor(2*d/L)*.5);
+// beta devuelve 1 si d>L/2; 0 si -L/2<d<L/2; -1 si d>-L/2
+  return d-beta*L;
 }
 
 double Distancia(double *pos, int N, int i, int j, double L){

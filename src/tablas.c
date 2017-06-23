@@ -88,7 +88,12 @@ int leer_tablas(double **LUTP, double **LUTF){
   fclose(fp);
   *LUTF = tabF;
   *LUTP = tabP;
-  return N; // Si este valor no es 1, hubo algun error al leer
+  if (k==2*N+1){
+    return N;
+  }else{ // Si no lei 2*N elementos, algo salió mal y devuelvo 0
+    printf("Error al leer tabla: %d en lugar de %d\n",k,2*N+1);
+    return 0;
+  }
 }
 
 /*int main(int argc, char **argv){
