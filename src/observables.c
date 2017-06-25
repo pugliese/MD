@@ -8,7 +8,7 @@
 double Energia_Potencial(double* pos_vel, int N, double* LUT_P, int Ntabla, double L){
   double rij = 0;
   double V = 0;
-  for(int i=1;i<N;i++){
+  for(int i=0;i<N;i++){
     for(int j=i+1;j<N;j++){
       rij = Distancia(pos_vel,N,i,j, L);
       V = V + Valor_LUT(LUT_P,Ntabla,rij);
