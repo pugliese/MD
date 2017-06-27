@@ -53,9 +53,10 @@ int Verlet_vel(double *vector_posvel, double *vector_fuerza,double *vector_fuerz
 
 //F variable auxiliar que guarda la fuerza entre dos particulas i y j.
 
-int Calcular_Fuerzas(double *vector_posvel, double *vector_fuerza, int N, double *LUTF, int Ntabla, double L){
+double Calcular_Fuerzas(double *vector_posvel, double *vector_fuerza, int N, double *LUTF, int Ntabla, double L){
 
-  double R,F,comp_k;
+  double R,F,dr,comp_k;
+  double P=0;
   for(int i=0;i<3*N;i++){
     vector_fuerza[i]=0;
   }
@@ -64,12 +65,14 @@ int Calcular_Fuerzas(double *vector_posvel, double *vector_fuerza, int N, double
   		R = Distancia(vector_posvel,N,i,j, L);
   		F = Valor_LUT(LUTF,Ntabla,R);
   		for(int k=0;k<3;k++){
-  			comp_k = F*Delta(vector_posvel, N, k, i, j, L)/R;
-  			vector_fuerza[i+k*N] = vector_fuerza[i+k*N]+comp_k;
+        dr=Delta(vector_posvel, N, k, i, j, L);
+        comp_k = F*dr/R;
+        P=P+comp_k*dr;
+        vector_fuerza[i+k*N] = vector_fuerza[i+k*N]+comp_k;
   			vector_fuerza[j+k*N] = vector_fuerza[j+k*N]-comp_k;
   		}
   	}
   }
 
-  return 0;
+  return P;
 }
