@@ -27,7 +27,7 @@ double Energia_Cinetica(double* pos_vel, int N, double m){
 
 double Presion (double P, double Ecin,int N, double rho){
   double Vol = N/rho;
-
+  double Pres;
   Pres = (1/(3*Vol))*(P*0.5 + Ecin) ; // es la presion de exceso + la P ideal
 
   return Pres;
