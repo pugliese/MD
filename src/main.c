@@ -24,7 +24,7 @@ int main(int argc, char const *argv[]) {
     guardar_tablas(LUT1,LUT2,N);
     free(LUT1);
     free(LUT2);
-  }else{
+  }if(opcion =='s'){
 
     int N=13*13*13;
     double rho=0.8442;
@@ -79,6 +79,47 @@ int main(int argc, char const *argv[]) {
     free(vector);
     free(LUTP);
     free(LUTF);*/
+  }if(opcion =='a'){
+    int N_pasos;
+    sscanf(argv[2],"%d", &N_pasos);
+    int N = 512;
+    double rho=0.8442;
+    double m=1;
+    double T=0.728;
+    double L = pow(N/rho,1./3);
+    double h = 1E-4;
+    double* vector = malloc(6*N*sizeof(double));
+    double* vector_fuerza=malloc(3*N*sizeof(double));
+    double* LUTF;
+    double* LUTP;
+
+    int Ntable = leer_tablas(&LUTP, &LUTF);
+
+    srand(time(NULL));
+
+    Inicializar(vector,vector_fuerza, N,LUTF,Ntable, rho, m,T);
+    double* Ecin= malloc(N_pasos*sizeof(double));
+    double* Epot= malloc(N_pasos*sizeof(double));
+    Ecin[0] = Energia_Cinetica(pos_vel, N, m);
+    Epot[0] = Energia_Potencial(pos_vel,  N,  LUT_P,  Ntabla,  L);
+    for(int i=1;i<N_pasos;i++){
+      Verlet(vector_posvel,&vector_fuerza,N,LUTF, Ntable,m,h,L);
+      Ecin[i] = Energia_Cinetica(pos_vel, N, m);
+      Epot[i] = Energia_Potencial(pos_vel,  N,  LUT_P,  Ntabla,  L);
+      // Algun observable mas //
+    }
+    FILE* fp = fopen("Energia_1a.txt", "a");
+    fprintf(fp, "#Energias a %d pasos de Verlet\n#Cinetica:\n", N_pasos);
+    for(int i=0;i<N_pasos-1;i++){
+      fprintf(fp, "%lg, ", Ecin[i]);
+    }
+    fprintf(fp, "%lg\n#Potencial:\n", Ecin[N_pasos-1]);
+    for(int i=0;i<N_pasos-1;i++){
+      fprintf(fp, "%lg, ", Epot[i]);
+    }
+    fprintf(fp, "%lg\n", Epot[N_pasos-1]);
+    fclose(fp);
+  }if(opcion =='b'){
   }
   return 0;
 }

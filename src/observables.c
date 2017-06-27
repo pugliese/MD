@@ -25,6 +25,9 @@ double Energia_Cinetica(double* pos_vel, int N, double m){
   return Ecin;
 }
 
+//------------------------------------------------------//
+
+
 double Presion (double P, double Ecin,int N, double rho){
   double Vol = N/rho;
   double Pres;
@@ -49,4 +52,23 @@ double* Gr(double* pos,int N, double dr, double L) {
     }
   }
   return Hist_Gr;
+}
+
+//------------------------------------------------------//
+
+double Orden_verlet (double* pos, int N, double a) {
+//  a=L/pow(N,1.0/3);
+  double lamb = 0 ;
+
+  for(int j=0;j<3;j++) lamb = lamb + lambda(pos,j,N,a);
+
+  return lamb/3 ;
+}
+
+double lambda (double* pos,int comp,int N,double a){
+  double lamx =0;
+  for (int i=0;i<N;i++){
+    lamx = lamx + (1.0/N)*cos(2* (PI/a) *(pos[i+comp*N]-a*0.5));
+  }
+  return lamx;
 }
