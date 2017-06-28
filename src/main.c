@@ -2,6 +2,7 @@
 #include "inicializar.h"
 #include "tablas.h"
 #include "funciones.h"
+#include "observables.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
@@ -25,7 +26,7 @@ int main(int argc, char const *argv[]) {
     free(LUT1);
     free(LUT2);
   }if(opcion =='s'){
-
+/*
     int N=13*13*13;
     double rho=0.8442;
     double m=1;
@@ -33,15 +34,15 @@ int main(int argc, char const *argv[]) {
     double L = pow(N/rho,1./3);
     double h = 1E-4;
     double* vector = malloc(6*N*sizeof(double));
-    double* vector_fuerza=malloc(3*N*sizeof(double));
+    double* vector_fuerza=malloc(3*N*sizeof(double));*/
     double* LUTF ;
     double* LUTP ;
 
     int Ntable = leer_tablas(&LUTP, &LUTF);
-
+/*
     srand(time(NULL));
 
-    Inicializar(vector,vector_fuerza, N,LUTF,Ntable, rho, m,T);
+    Inicializar(vector,vector_fuerza, N,LUTF,Ntable, rho, m,T);*/
 /*
     for (int i=0;i<N;i++) {
       printf("particula %d \n",i);
@@ -49,7 +50,7 @@ int main(int argc, char const *argv[]) {
       printf("v : %f %f %f \n",vector[i+3*N],vector[i+4*N],vector[i+5*N]);
     }
 */
-
+/*
     double PromVel = 0;
     for(int i = 0;i<3*N;i++) PromVel = PromVel + vector[3*N+i]*vector[3*N+i]/(3*N);
     printf("promedio velocidad = %f\n",PromVel);
@@ -58,28 +59,102 @@ int main(int argc, char const *argv[]) {
     free(vector);
     free(vector_fuerza);
     free(LUTP);
-    free(LUTF);
-    /*
+    free(LUTF);*/
+
     double *vector = malloc(6*2*sizeof(double));
-    double L = 10;
-    vector[0] = 0.5;
-    vector[2] = 0.5;
-    vector[4] = 8;
-    vector[1] = 1.5;
-    vector[3] = 9;
-    vector[5] = 0.3;
-    double dx = Delta(vector,2,0,0,1,L);
-    double dy = Delta(vector,2,1,0,1,L);
-    double dz = Delta(vector,2,2,0,1,L);
-    printf("%lg %lg %lg\n", dx,dy,dz);
-    double* F = malloc(3*2*sizeof(double));
-    Calcular_Fuerzas(vector,F,2,LUTF,Ntable,L);
-    printf("%lg %lg %lg\n", F[0],F[2],F[4]);
-    printf("%lg %lg %lg\n", F[1],F[3],F[5]);
+    double *vector_fuerza = malloc(3*2*sizeof(double));
+    double L = 12;
+    // Posiciones
+    vector[0] = 3;
+    vector[2] = 3;
+    vector[4] = 3;
+    vector[1] = 4.5;
+    vector[3] = 3;
+    vector[5] = 3;
+    // Velocidades
+    vector[6] = 0;
+    vector[8] = 0.1;
+    vector[10] = 0;
+    vector[7] = 0;
+    vector[9] = -0.1;
+    vector[11] = 0;
+
+    int Np = 20000;
+    Calcular_Fuerzas(vector,vector_fuerza,2,LUTF,Ntable,L);
+    double* X1 = malloc(Np*sizeof(double)/10);
+    double* Y1 = malloc(Np*sizeof(double)/10);
+    double* X2 = malloc(Np*sizeof(double)/10);
+    double* Y2 = malloc(Np*sizeof(double)/10);
+    double *Ecin =  malloc(Np*sizeof(double));
+    double *Epot =  malloc(Np*sizeof(double));
+    X1[0] = vector[0];
+    X2[0] = vector[1];
+    Y1[0] = vector[2];
+    Y2[0] = vector[3];
+    Ecin[0] = Energia_Cinetica(vector, 2, 1);
+    Epot[0] = Energia_Potencial(vector,  2,  LUTP,  Ntable,  L);
+    for(int i=1;i<Np;i++){
+      Verlet(vector,&vector_fuerza,2,LUTF, Ntable,1,1E-3,L);
+      Ecin[i] = Energia_Cinetica(vector, 2, 1);
+      Epot[i] = Energia_Potencial(vector,  2,  LUTP,  Ntable,  L);
+      //printf("%lg -> (%lg, %lg, %lg)\n", Delta(vector,2,0,0,1,L),vector_fuerza[0],vector_fuerza[2],vector_fuerza[4]);
+      /*if (i%10==0){
+        X1[i/10] = vector[0];
+        X2[i/10] = vector[1];
+        Y1[i/10] = vector[2];
+        Y2[i/10] = vector[3];
+      }*/
+    }/*
+    printf("X1=[");
+    for(int i=0;i<Np/10-1;i++){
+      printf("%lg,", X1[i]);
+    }
+    printf("%lg];\n", X1[Np/10-1]);
+    printf("X2=[");
+    for(int i=0;i<Np/10-1;i++){
+      printf("%lg,", X2[i]);
+    }
+    printf("%lg];\n", X2[Np/10-1]);
+    printf("Y1=[");
+    for(int i=0;i<Np/10-1;i++){
+      printf("%lg,", Y1[i]);
+    }
+    printf("%lg];\n", Y1[Np/10-1]);
+    printf("Y2=[");
+    for(int i=0;i<Np/10-1;i++){
+      printf("%lg,", Y2[i]);
+    }
+    printf("%lg];\n", Y2[Np/10-1]);
+    printf("Z1=[");
+    for(int i=0;i<Np-1;i++){
+      printf("%lg,", Z1[i]);
+    }
+    printf("%lg];\n", Z1[Np-1]);
+    printf("Z2=[");
+    for(int i=0;i<Np-1;i++){
+      printf("%lg,", Z2[i]);
+    }
+    printf("%lg];\n", Z2[Np-1]);*/
+    FILE* fp = fopen("paja.txt", "w");
+    for(int i=0;i<Np-1;i++){
+      fprintf(fp,"%lg ", Ecin[i]);
+    }
+    fprintf(fp,"%lg\n", Ecin[Np-1]);
+    for(int i=0;i<Np-1;i++){
+      fprintf(fp,"%lg ", Epot[i]);
+    }
+    fprintf(fp,"%lg\n", Epot[Np-1]);
+    free(X1);
+    free(X2);
+    free(Y1);
+    free(Y2);
     free(vector);
     free(LUTP);
-    free(LUTF);*/
+    free(LUTF);
+    free(Ecin);
+    free(Epot);
   }if(opcion =='a'){
+    int secs = time(NULL);
     int N_pasos;
     sscanf(argv[2],"%d", &N_pasos);
     int N = 512;
@@ -98,27 +173,36 @@ int main(int argc, char const *argv[]) {
     srand(time(NULL));
 
     Inicializar(vector,vector_fuerza, N,LUTF,Ntable, rho, m,T);
+    Calcular_Fuerzas(vector,vector_fuerza,N,LUTF,Ntable,L);
     double* Ecin= malloc(N_pasos*sizeof(double));
     double* Epot= malloc(N_pasos*sizeof(double));
-    Ecin[0] = Energia_Cinetica(pos_vel, N, m);
-    Epot[0] = Energia_Potencial(pos_vel,  N,  LUT_P,  Ntabla,  L);
+    Ecin[0] = Energia_Cinetica(vector, N, m);
+    Epot[0] = Energia_Potencial(vector,  N,  LUTP,  Ntable,  L);
     for(int i=1;i<N_pasos;i++){
-      Verlet(vector_posvel,&vector_fuerza,N,LUTF, Ntable,m,h,L);
-      Ecin[i] = Energia_Cinetica(pos_vel, N, m);
-      Epot[i] = Energia_Potencial(pos_vel,  N,  LUT_P,  Ntabla,  L);
+      Verlet(vector,&vector_fuerza,N,LUTF, Ntable,m,h,L);
+      Ecin[i] = Energia_Cinetica(vector, N, m);
+      Epot[i] = Energia_Potencial(vector,  N,  LUTP,  Ntable,  L);
       // Algun observable mas //
     }
-    FILE* fp = fopen("Energia_1a.txt", "a");
+    FILE* fp = fopen("Energia_1a.txt", "w");
     fprintf(fp, "#Energias a %d pasos de Verlet\n#Cinetica:\n", N_pasos);
     for(int i=0;i<N_pasos-1;i++){
-      fprintf(fp, "%lg, ", Ecin[i]);
+      fprintf(fp, "%lg ", Ecin[i]);
     }
     fprintf(fp, "%lg\n#Potencial:\n", Ecin[N_pasos-1]);
     for(int i=0;i<N_pasos-1;i++){
-      fprintf(fp, "%lg, ", Epot[i]);
+      fprintf(fp, "%lg ", Epot[i]);
     }
     fprintf(fp, "%lg\n", Epot[N_pasos-1]);
     fclose(fp);
+    free(vector);
+    free(vector_fuerza);
+    free(LUTP);
+    free(LUTF);
+    free(Ecin);
+    free(Epot);
+    secs = time(NULL)-secs;
+    printf("%d hs %d mins, %d segs\n", secs/3600, (secs/60)%60, secs%60);
   }if(opcion =='b'){
   }
   return 0;

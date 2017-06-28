@@ -5,6 +5,8 @@
 #include <time.h>
 #include <math.h>
 
+#define PI 3.14
+
 double Energia_Potencial(double* pos_vel, int N, double* LUT_P, int Ntabla, double L){
   double rij = 0;
   double V = 0;

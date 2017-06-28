@@ -33,6 +33,7 @@ int Verlet_pos(double *vector_posvel, double *vector_fuerza, int N,double m, dou
 
   return 0 ;
 }
+
 ///-*--------------------------------------------------------------------------*
 
 int Verlet_vel(double *vector_posvel, double *vector_fuerza,double *vector_fuerza_h, int N,double m, double h){
@@ -57,8 +58,10 @@ double Calcular_Fuerzas(double *vector_posvel, double *vector_fuerza, int N, dou
 
   double R,F,dr,comp_k;
   double P=0;
+  double *pos_aux = malloc(3*N*sizeof(double));
   for(int i=0;i<3*N;i++){
     vector_fuerza[i]=0;
+    pos_aux[i] = vector_posvel[i];
   }
   for(int i=0;i<N;i++){
   	for(int j=i+1;j<N;j++){

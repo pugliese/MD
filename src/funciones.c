@@ -6,9 +6,18 @@
 
 double Delta(double *pos, int N, int comp, int i, int j, double L){
   double d=pos[i+comp*N]-pos[j+comp*N];
-  int beta = ceil(floor(2*d/L)*.5);
+  //int beta = ceil(floor(2*d/L)*.5);
+  if(d>0.5*L){
+    return d-L;
+  }else{
+    if(d>-0.5*L){
+      return d;
+    }else{
+      return L+d;
+    }
+  }
 // beta devuelve 1 si d>L/2; 0 si -L/2<d<L/2; -1 si d>-L/2
-  return d-beta*L;
+  //return d-beta*L;
 }
 
 double Distancia(double *pos, int N, int i, int j, double L){
@@ -19,7 +28,6 @@ double Distancia(double *pos, int N, int i, int j, double L){
     dk = Delta(pos, N, k, i, j, L);
     dist = dist + dk*dk;
   }
-
   return sqrt(dist);
 
 }
