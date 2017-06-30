@@ -36,22 +36,25 @@ double Presion (double Pex, double Ecin,int N, double rho){
   return Pres;
 }
 
-double* Gr(double* pos,int N, double dr, double L) {
-  int nhist= ceil (L/(2*dr));
+double* Gr(double* pos,int N,double rho, double dr, double L,int nhist) {
+  //int nhist= ceil (L/(2*dr));
   double rij;
   int k;
 
-  double *Hist_Gr = malloc(sizeof(double)*nhist) ;
-  for (int i=0; i<nhist;i++) Hist_Gr[i] = 0 ;
+  double *hist_gr = malloc(sizeof(double)*nhist) ;
+  for (int i=0; i<nhist;i++) hist_gr[i] = 0 ;
 
   for(int i=0;i<N;i++){
     for(int j=0;j<i;j++){
       rij = Distancia(pos, N, i, j, L);
       k = floor(rij/dr);
-      Hist_Gr[k]++;
+      hist_gr[k]++;
     }
   }
-  return Hist_Gr;
+  for (int i=1; i<nhist;i++){
+    hist_gr[i]=hist_gr[i]*2/(4*M_PI*dr*dr*dr*i*i*rho*N);
+  }
+  return hist_gr;
 }
 
 //------------------------------------------------------//
