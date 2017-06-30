@@ -203,7 +203,74 @@ int main(int argc, char const *argv[]) {
     free(Epot);
     secs = time(NULL)-secs;
     printf("%d hs %d mins, %d segs\n", secs/3600, (secs/60)%60, secs%60);
-  }if(opcion =='b'){
+
+
+  }if(opcion =='g'){
+    int secs = time(NULL);
+    int N_pasos = 2000;
+    int N = 125;
+    double rho=0.8442;
+    double m=1;
+    double T=1.5;
+    sscanf(argv[2],"%lg",&rho);
+//    double L = pow(N/rho,1./3);
+    double h = 1E-4;
+    double* vector = malloc(6*N*sizeof(double));
+    double* vector_fuerza=malloc(3*N*sizeof(double));
+    double* LUTF;
+    double* LUTP;
+    int Q_pasos = 100 ;
+    int Ntable = leer_tablas(&LUTP, &LUTF);
+
+    srand(time(NULL));
+
+    double L=Inicializar(vector,vector_fuerza, N,LUTF,Ntable, rho, m,T);
+
+    double dr = 0.01*pow(1.0/rho,1./3);
+
+    printf("dr=%lg ,L=%lg, T=%lg, rho=%lg \n",dr,L,T,rho );
+
+    int nhist= ceil (L/dr);
+
+    double* hist_gr;
+    double* himean = malloc(nhist*sizeof(double));
+    for (int i=0; i<nhist;i++) {
+      himean[i]=0 ;
+    }
+
+    for(int q=0;q<Q_pasos;q++){
+      for(int i=1; i<N_pasos;i++){
+        Verlet(vector,&vector_fuerza,N,LUTF, Ntable,m,h,L);
+      }
+        hist_gr = Gr(vector, N,rho, dr, L,nhist);
+        for (int m=0;m<nhist;m++){
+          himean[m] = himean[m] + hist_gr[m]/Q_pasos;
+        }
+
+    }
+
+    FILE* fp = fopen("Histo_gr.txt", "w");
+    fprintf(fp, "#g(r)\n");
+    for(int i=0;i<nhist;i++){
+      fprintf(fp, " %lg \n", himean[i]);
+    }
+
+    fclose(fp);
+
+    free(vector);
+    free(vector_fuerza);
+    free(LUTP);
+    free(LUTF);
+    free(hist_gr);
+    //free(Ecin);
+    //free(Epot);
+    secs = time(NULL)-secs;
+    printf("%d hs %d mins, %d segs\n", secs/3600, (secs/60)%60, secs%60);
+
+
+
   }
+
+
   return 0;
 }
