@@ -20,7 +20,6 @@ double* LUT_P(int N){
   double r=0;
   double* res=malloc(N*sizeof(double));
   double Fo = Fuerza_Lennard_Jones(2.5);
-  printf("%lg\n",Fo );
   double So = Lennard_Jones(2.5);
   for(int i=0;i<m;i++){
     r = r+step;
