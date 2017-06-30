@@ -211,15 +211,16 @@ int main(int argc, char const *argv[]) {
     int N = 125;
     double rho=0.8442;
     double m=1;
-    double T=1.5;
+    double T=15;
     sscanf(argv[2],"%lg",&rho);
+    sscanf(argv[3],"%lg",&T);
 //    double L = pow(N/rho,1./3);
     double h = 1E-4;
     double* vector = malloc(6*N*sizeof(double));
     double* vector_fuerza=malloc(3*N*sizeof(double));
     double* LUTF;
     double* LUTP;
-    int Q_pasos = 100 ;
+    int Q_pasos = 200 ;
     int Ntable = leer_tablas(&LUTP, &LUTF);
 
     srand(time(NULL));
@@ -251,7 +252,7 @@ int main(int argc, char const *argv[]) {
 
     FILE* fp = fopen("Histo_gr.txt", "w");
     fprintf(fp, "#g(r)\n");
-    for(int i=0;i<nhist;i++){
+    for(int i=0;i<nhist/2;i++){
       fprintf(fp, " %lg \n", himean[i]);
     }
 
