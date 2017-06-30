@@ -206,20 +206,20 @@ int main(int argc, char const *argv[]) {
 
   }if(opcion =='g'){
     int secs = time(NULL);
-    int N_pasos = 2000;
-    int N = 125;
+    int N_pasos = 1000;
+    int N = 512;
     double rho=0.8442;
     double m=1;
     double T=15;
     sscanf(argv[2],"%lg",&rho);
     sscanf(argv[3],"%lg",&T);
 //    double L = pow(N/rho,1./3);
-    double h = 1E-4;
+    double h = 5E-4;
     double* vector = malloc(6*N*sizeof(double));
     double* vector_fuerza=malloc(3*N*sizeof(double));
     double* LUTF;
     double* LUTP;
-    int Q_pasos = 200 ;
+    int Q_pasos = 100 ;
     int Ntable = leer_tablas(&LUTP, &LUTF);
 
     srand(time(NULL));
@@ -228,7 +228,7 @@ int main(int argc, char const *argv[]) {
 
     double dr = 0.01*pow(1.0/rho,1./3);
 
-    printf("dr=%lg ,L=%lg, T=%lg, rho=%lg \n",dr,L,T,rho );
+    printf("dr=%lg, L=%lg, T=%lg, rho=%lg \n",dr,L,T,rho );
 
     int nhist= ceil (L/dr);
 
@@ -246,6 +246,7 @@ int main(int argc, char const *argv[]) {
         for (int m=0;m<nhist;m++){
           himean[m] = himean[m] + hist_gr[m]/Q_pasos;
         }
+        printf("Paso %d\n", q+1);
 
     }
 
@@ -266,9 +267,6 @@ int main(int argc, char const *argv[]) {
     //free(Epot);
     secs = time(NULL)-secs;
     printf("%d hs %d mins, %d segs\n", secs/3600, (secs/60)%60, secs%60);
-
-
-
   }
 
   return 0;
