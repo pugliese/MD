@@ -5,8 +5,6 @@
 #include <time.h>
 #include <math.h>
 
-#define PI 3.14
-
 double Energia_Potencial(double* pos_vel, int N, double* LUT_P, int Ntabla, double L){
   double rij = 0;
   double V = 0;
@@ -30,10 +28,10 @@ double Energia_Cinetica(double* pos_vel, int N, double m){
 //------------------------------------------------------//
 
 
-double Presion (double P, double Ecin,int N, double rho){
+double Presion (double Pex, double Ecin,int N, double rho){
   double Vol = N/rho;
   double Pres;
-  Pres = (1/(3*Vol))*(P*0.5 + Ecin) ; // es la presion de exceso + la P ideal
+  Pres = (1/(3*Vol))*(Pex+2*Ecin) ; // es la presion de exceso + la P ideal
 
   return Pres;
 }
@@ -73,7 +71,7 @@ double Orden_verlet (double* pos, int N, double a) {
 double lambda (double* pos,int comp,int N,double a){
   double lamx =0;
   for (int i=0;i<N;i++){
-    lamx = lamx + (1.0/N)*cos(2* (PI/a) *(pos[i+comp*N]-a*0.5));
+    lamx = lamx + (1.0/N)*cos(2* (M_PI/a) *(pos[i+comp*N]-a*0.5));
   }
   return lamx;
 }

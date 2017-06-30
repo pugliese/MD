@@ -204,7 +204,6 @@ int main(int argc, char const *argv[]) {
     secs = time(NULL)-secs;
     printf("%d hs %d mins, %d segs\n", secs/3600, (secs/60)%60, secs%60);
 
-
   }if(opcion =='g'){
     int secs = time(NULL);
     int N_pasos = 2000;
@@ -271,7 +270,6 @@ int main(int argc, char const *argv[]) {
 
 
   }
-
 
   return 0;
 }
