@@ -5,20 +5,20 @@
 #include <time.h>
 #include <math.h>
 
-int Verlet(double *vector_posvel, double **vector_fuerza, int N,
+double Verlet(double *vector_posvel, double **vector_fuerza, int N,
             double *LUTF, double Ntabla, double m, double h,double L) //pasito a pasito
 {
   //necesito unas fuerzas iniciales que vienen de arriba
   double *vector_fuerza_h = malloc(N*3*sizeof(double));
 
   Verlet_pos(vector_posvel,*vector_fuerza,N,m,h,L) ; //posiciones t+h
-  Calcular_Fuerzas(vector_posvel,vector_fuerza_h,N,LUTF,Ntabla,L) ;//fzas t+h
+  double P = Calcular_Fuerzas(vector_posvel,vector_fuerza_h,N,LUTF,Ntabla,L) ;//fzas t+h
   Verlet_vel(vector_posvel, *vector_fuerza, vector_fuerza_h,N,m,h) ; //vel t+h
 
   free(*vector_fuerza);      // Elimino las "fuerzas viejas"
   *vector_fuerza = vector_fuerza_h;  // Pongo las nuevas en su lugar
 
-  return 0;
+  return P;
 }
 
 ///-*--------------------------------------------------------------------------*
@@ -70,7 +70,7 @@ double Calcular_Fuerzas(double *vector_posvel, double *vector_fuerza, int N, dou
   		for(int k=0;k<3;k++){
         dr=Delta(vector_posvel, N, k, i, j, L);
         comp_k = F*dr/R;
-        P=P+comp_k*dr;
+        P = P + comp_k*dr;
         vector_fuerza[i+k*N] = vector_fuerza[i+k*N]+comp_k;
   			vector_fuerza[j+k*N] = vector_fuerza[j+k*N]-comp_k;
   		}
