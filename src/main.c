@@ -210,15 +210,15 @@ int main(int argc, char const *argv[]) {
 
 //----------------------------------------------------------------------------------
 
-  }if(opcion =='g'){
+  }if(opcion =='3'){
     int secs = time(NULL);
-    int N_pasos = 1000;
+    int N_pasos = 3000;
     int N = 512;
     double rho=0.8442;
     double m=1;
-    double T=15;
+    double T=1.5;
     sscanf(argv[2],"%lg",&rho);
-    sscanf(argv[3],"%lg",&T);
+//    sscanf(argv[3],"%lg",&T);
 //    double L = pow(N/rho,1./3);
     double h = 5E-4;
     double* vector = malloc(6*N*sizeof(double));
@@ -227,7 +227,6 @@ int main(int argc, char const *argv[]) {
     double* LUTP;
     int Q_pasos = 100 ;
     int Ntable = leer_tablas(&LUTP, &LUTF);
-
     srand(time(NULL));
 
     double L=Inicializar(vector,vector_fuerza, N,LUTF,Ntable, rho, m,T);
@@ -255,8 +254,10 @@ int main(int argc, char const *argv[]) {
         printf("Paso %d\n", q+1);
 
     }
+    char name[100];
+    sprintf(name, "Histo_gr_%lg.txt", rho);
 
-    FILE* fp = fopen("Histo_gr.txt", "w");
+    FILE* fp = fopen(name, "w");
     fprintf(fp, "#g(r)\n");
     for(int i=0;i<nhist/2;i++){
       fprintf(fp, " %lg \n", himean[i]);
@@ -302,18 +303,18 @@ int main(int argc, char const *argv[]) {
 
     secs = time(NULL)-secs;
     printf("%d hs %d mins, %d segs\n", secs/3600, (secs/60)%60, secs%60);
-
-  return 0;
   }
 
+//----------------------------------------------------------------------------------//
+
   if(opcion == 'b'){
-    double T=0.728;
+    double T=1.50728;
     int n, k;
     sscanf(argv[2],"%d",&n);
     sscanf(argv[3],"%d",&k);
 
     int secs = time(NULL);
-    int N = 125;
+    int N = 512;
     int Term = k;
     double rho=0.8442;
     double m=1;
@@ -327,13 +328,24 @@ int main(int argc, char const *argv[]) {
     double* LUTF;
     double* LUTP;
     int Ntable = leer_tablas(&LUTP, &LUTF);
+    double* vel = malloc(sizeof(double)*3*N);
     srand(time(NULL));
 
     double L=Inicializar(vector,vector_fuerza, N,LUTF,Ntable, rho, m,T);
+    for (int i=0;i<3*N;i++){
+      vel[i]=vector[i+3*N];
+    }
+
+    printf("Tini = %lg ; KT/m = %lg \n",T ,Energia_Cinetica(vector,N,m)*2.0/(3*N));
 
     for (int i=0;i<Term;i++){
       Verlet(vector,&vector_fuerza,N,LUTF, Ntable,m,h,L);
     }
+    for (int i=0;i<3*N;i++){
+      vel[i]=vector[i+3*N];
+    }
+    printf("Tini = %lg ; KT/m = %lg \n",T ,Energia_Cinetica(vector,N,m)*2.0/(3*N));
+
     for(int i=0;i<n;i++){
       for(int j=0;j<k;j++){
         Verlet(vector,&vector_fuerza,N,LUTF, Ntable,m,h,L);
@@ -346,16 +358,21 @@ int main(int argc, char const *argv[]) {
     }
 
     FILE* fp = fopen("Cinetica-Potencial.txt", "w");
-    for(int i=0;i<n;i++){
-      fprintf(fp, "%lg ", Ecin[i]);
-    }
+    for(int i=0;i<n;i++)fprintf(fp, "%lg ", Ecin[i]);
     fprintf(fp, "\n");
-    for(int i=0;i<n;i++){
-      fprintf(fp, "%lg ", Epot[i]);
-    }
+    for(int i=0;i<n;i++) fprintf(fp, "%lg ", Epot[i]);
     fprintf(fp, "\n");
+    fclose(fp);
+
     printf("Cinetica media: %lg  Varianza: %lg\n", esperanza(Ecin,n), Varianza(Ecin,n));
     printf("Potencial media: %lg  Varianza: %lg \n", esperanza(Epot,n), Varianza(Epot,n));
+
+    for (int i=0;i<3*N;i++){
+      vel[i]=vector[i+3*N];
+    }
+
+    printf("Tini = %lg ; KT/m = %lg \n",T ,Energia_Cinetica(vector,N,m)*2.0/(3*N));
+
     secs = time(NULL)-secs;
     printf("%d hs %d mins, %d segs\n", secs/3600, (secs/60)%60, secs%60);
 
@@ -368,4 +385,78 @@ int main(int argc, char const *argv[]) {
     free(LUTP);
     free(LUTF);
   }
+
+
+  //----------------------------------------------------------------------------------//
+
+    if(opcion == '2'){
+      double T=2.0;
+      int n=100;
+      //sscanf(argv[2],"%d",&n);
+      double rho=0.8;
+      sscanf(argv[2],"%lg",&rho);
+//      int k;
+      int secs = time(NULL);
+      int N = 125;
+      int Term = 2000;
+      double m=1;
+      double h = 1.0E-4;
+      double* vector = malloc(6*N*sizeof(double));
+      double* vector_fuerza=malloc(3*N*sizeof(double));
+      double* Ecin = malloc(n*sizeof(double));
+      double* Epot = malloc(n*sizeof(double));
+      double* Etot = malloc(n*sizeof(double));
+      double* P = malloc(n*sizeof(double));
+
+//      double* Ecin_k = malloc(k*sizeof(double));
+//      double* Epot_k = malloc(k*sizeof(double));
+      double* LUTF;
+      double* LUTP;
+      int q_pasos = 100;
+      int Ntable = leer_tablas(&LUTP, &LUTF);
+      srand(time(NULL));
+
+      double L=Inicializar(vector,vector_fuerza, N,LUTF,Ntable, rho, m,T);
+      double T_deseada;
+      double Pex;
+
+      for(int t=0;t<n;t++){
+        Ecin[t]=0;
+        Epot[t]=0;
+        P[t]=0;
+        for(int q=0;q<q_pasos;q++){
+          for (int i=0;i<Term;i++){
+            Verlet(vector,&vector_fuerza,N,LUTF, Ntable,m,h,L);
+          }
+
+          Ecin[t] = Ecin[t] + Energia_Cinetica(vector,N,m)/q_pasos ;
+          Epot[t] = Epot[t] + Energia_Potencial(vector,  N,  LUTP,  Ntable,  L)/q_pasos;
+
+          Pex = Verlet(vector,&vector_fuerza,N,LUTF, Ntable,m,h,L);
+          P[t] = P[t] + Presion( Pex, Ecin[t], N ,rho)/q_pasos;
+
+        }
+
+        Etot[t] = Ecin[t]+Epot[t] ;
+        T_deseada = T - (2.4/n);
+        Reescalar_Vel(vector,N,T,T_deseada);
+        T = T_deseada;
+        printf("temperatura = %f\n", T );
+      }
+
+      char name[100];
+      sprintf(name, "2_E_P_%lg.txt", rho);
+      FILE* fp = fopen(name, "w");
+      for(int i=0;i<n;i++)fprintf(fp, "%lg ", Etot[i]);
+      fprintf(fp, "\n");
+      for(int i=0;i<n;i++) fprintf(fp, "%lg ", P[i]);
+      fprintf(fp, "\n");
+      fclose(fp);
+
+
+
+      secs = time(NULL)-secs;
+      printf("%d hs %d mins, %d segs\n", secs/3600, (secs/60)%60, secs%60);
+    }
+    return 0;
 }
