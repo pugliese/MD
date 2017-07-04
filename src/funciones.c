@@ -60,3 +60,14 @@ double Interpol(double *LUT, double R, double step){
   double m = (LUT[idx+1]-LUT[idx])/step;
   return LUT[idx]+(R-step*idx)*m;
 }
+
+int Reescalar_Vel(double *posvel,int N,double T_actual, double T_deseado){
+
+  double resca = sqrt(T_deseado/T_actual) ;
+
+  for (int i=3*N;i<6*N;i++){
+    posvel[i] = resca * posvel[i];
+  }
+
+  return 0;
+}

@@ -153,6 +153,10 @@ int main(int argc, char const *argv[]) {
     free(LUTF);
     free(Ecin);
     free(Epot);
+
+//----------------------------------------------------------------------------------
+
+
   }if(opcion =='a'){
     int secs = time(NULL);
     int N_pasos;
@@ -204,6 +208,8 @@ int main(int argc, char const *argv[]) {
     secs = time(NULL)-secs;
     printf("%d hs %d mins, %d segs\n", secs/3600, (secs/60)%60, secs%60);
 
+//----------------------------------------------------------------------------------
+
   }if(opcion =='g'){
     int secs = time(NULL);
     int N_pasos = 1000;
@@ -228,7 +234,7 @@ int main(int argc, char const *argv[]) {
 
     double dr = 0.01*pow(1.0/rho,1./3);
 
-    printf("dr=%lg, L=%lg, T=%lg, rho=%lg \n",dr,L,T,rho );
+    printf("dr=%lg, L=%lg, rho=%lg, T=%lg  \n",dr,L,rho,T );
 
     int nhist= ceil (L/dr);
 
@@ -269,5 +275,34 @@ int main(int argc, char const *argv[]) {
     printf("%d hs %d mins, %d segs\n", secs/3600, (secs/60)%60, secs%60);
   }
 
+//----------------------------------------------------------------------------------//
+
+  if(opcion =='v'){
+    double T=1;
+    double T_deseada =4 ;
+
+    int secs = time(NULL);
+    int N = 8;
+    double rho=0.8442;
+    double m=1;
+    double* vector = malloc(6*N*sizeof(double));
+    double* vector_fuerza=malloc(3*N*sizeof(double));
+    double* LUTF;
+    double* LUTP;
+    int Ntable = leer_tablas(&LUTP, &LUTF);
+    srand(time(NULL));
+
+    Inicializar(vector,vector_fuerza, N,LUTF,Ntable, rho, m,T);
+
+    printf("T=%lg, T_deseada=%lg, rho=%lg, v=%lg \n",T,T_deseada,rho,vector[3*N+10]);
+
+    Reescalar_Vel(vector,N,T,T_deseada);
+
+    printf("T=%lg, T_deseada=%lg, rho=%lg, v=%lg,\n",T,T_deseada,rho,vector[3*N+10]);
+
+    secs = time(NULL)-secs;
+    printf("%d hs %d mins, %d segs\n", secs/3600, (secs/60)%60, secs%60);
+
   return 0;
+  }
 }
