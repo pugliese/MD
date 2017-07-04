@@ -71,3 +71,33 @@ int Reescalar_Vel(double *posvel,int N,double T_actual, double T_deseado){
 
   return 0;
 }
+//---------------------------------------------------------------//
+double Varianza(double *vector,int N){
+  double sigma, mu ;
+
+  mu = esperanza(vector, N);
+
+  for(int k=0;k<N;k++) {
+      sigma = esperanza2(vector,N) - mu*mu;
+  }
+
+  return sigma;
+}
+
+double esperanza2(double *vector, int n) {
+   double X=0;
+
+   for(int i=0;i<n;i++) X = X + vector[i]*vector[i];
+   X = X/n ;
+
+   return X ;
+ }
+double esperanza(double *vector, int n) {
+  double mu=0;
+
+  for(int i=0;i<n;i++) mu = mu + vector[i];
+  mu = mu/n ;
+
+  return mu ;
+}
+//---------------------------------------------------------------//

@@ -277,7 +277,7 @@ int main(int argc, char const *argv[]) {
 
 //----------------------------------------------------------------------------------//
 
-  if(opcion =='v'){
+  if(opcion =='v'){ // Probando la funcion reescalar
     double T=1;
     double T_deseada =4 ;
 
