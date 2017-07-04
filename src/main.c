@@ -305,4 +305,67 @@ int main(int argc, char const *argv[]) {
 
   return 0;
   }
+
+  if(opcion == 'b'){
+    double T=0.728;
+    int n, k;
+    sscanf(argv[2],"%d",&n);
+    sscanf(argv[3],"%d",&k);
+
+    int secs = time(NULL);
+    int N = 125;
+    int Term = k;
+    double rho=0.8442;
+    double m=1;
+    double h = 1.0E-4;
+    double* vector = malloc(6*N*sizeof(double));
+    double* vector_fuerza=malloc(3*N*sizeof(double));
+    double* Ecin = malloc(n*sizeof(double));
+    double* Epot = malloc(n*sizeof(double));
+    double* Ecin_k = malloc(k*sizeof(double));
+    double* Epot_k = malloc(k*sizeof(double));
+    double* LUTF;
+    double* LUTP;
+    int Ntable = leer_tablas(&LUTP, &LUTF);
+    srand(time(NULL));
+
+    double L=Inicializar(vector,vector_fuerza, N,LUTF,Ntable, rho, m,T);
+
+    for (int i=0;i<Term;i++){
+      Verlet(vector,&vector_fuerza,N,LUTF, Ntable,m,h,L);
+    }
+    for(int i=0;i<n;i++){
+      for(int j=0;j<k;j++){
+        Verlet(vector,&vector_fuerza,N,LUTF, Ntable,m,h,L);
+        Ecin_k[j] = Energia_Cinetica(vector, N, m);
+        Epot_k[j] = Energia_Potencial(vector,  N,  LUTP,  Ntable,  L);
+      }
+      Ecin[i] = esperanza(Ecin_k,k);
+      Epot[i] = esperanza(Epot_k,k);
+      printf("Paso %d\n", i);
+    }
+
+    FILE* fp = fopen("Cinetica-Potencial.txt", "w");
+    for(int i=0;i<n;i++){
+      fprintf(fp, "%lg ", Ecin[i]);
+    }
+    fprintf(fp, "\n");
+    for(int i=0;i<n;i++){
+      fprintf(fp, "%lg ", Epot[i]);
+    }
+    fprintf(fp, "\n");
+    printf("Cinetica media: %lg  Varianza: %lg\n", esperanza(Ecin,n), Varianza(Ecin,n));
+    printf("Potencial media: %lg  Varianza: %lg \n", esperanza(Epot,n), Varianza(Epot,n));
+    secs = time(NULL)-secs;
+    printf("%d hs %d mins, %d segs\n", secs/3600, (secs/60)%60, secs%60);
+
+    free(Ecin);
+    free(Epot);
+    free(Ecin_k);
+    free(Epot_k);
+    free(vector);
+    free(vector_fuerza);
+    free(LUTP);
+    free(LUTF);
+  }
 }

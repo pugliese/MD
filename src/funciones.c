@@ -76,11 +76,8 @@ double Varianza(double *vector,int N){
   double sigma, mu ;
 
   mu = esperanza(vector, N);
-
-  for(int k=0;k<N;k++) {
-      sigma = esperanza2(vector,N) - mu*mu;
-  }
-
+  sigma = esperanza2(vector,N) - mu*mu;
+  
   return sigma;
 }
 
