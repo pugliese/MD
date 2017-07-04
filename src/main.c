@@ -161,7 +161,7 @@ int main(int argc, char const *argv[]) {
     int secs = time(NULL);
     int N_pasos;
     sscanf(argv[2],"%d", &N_pasos);
-    int N = 512;
+    int N = 125;
     double rho=0.8442;
     double m=1;
     double T=0.728;
@@ -177,7 +177,7 @@ int main(int argc, char const *argv[]) {
     srand(time(NULL));
 
     Inicializar(vector,vector_fuerza, N,LUTF,Ntable, rho, m,T);
-    Calcular_Fuerzas(vector,vector_fuerza,N,LUTF,Ntable,L);
+
     double* Ecin= malloc(N_pasos*sizeof(double));
     double* Epot= malloc(N_pasos*sizeof(double));
     Ecin[0] = Energia_Cinetica(vector, N, m);
@@ -186,6 +186,7 @@ int main(int argc, char const *argv[]) {
       Verlet(vector,&vector_fuerza,N,LUTF, Ntable,m,h,L);
       Ecin[i] = Energia_Cinetica(vector, N, m);
       Epot[i] = Energia_Potencial(vector,  N,  LUTP,  Ntable,  L);
+      if (i%1000==0) printf("Paso %d\n", i);
       // Algun observable mas //
     }
     FILE* fp = fopen("Energia_1a.txt", "w");
@@ -302,8 +303,6 @@ int main(int argc, char const *argv[]) {
 
     secs = time(NULL)-secs;
     printf("%d hs %d mins, %d segs\n", secs/3600, (secs/60)%60, secs%60);
-
-  return 0;
   }
 
   if(opcion == 'b'){
@@ -329,7 +328,7 @@ int main(int argc, char const *argv[]) {
     int Ntable = leer_tablas(&LUTP, &LUTF);
     srand(time(NULL));
 
-    double L=Inicializar(vector,vector_fuerza, N,LUTF,Ntable, rho, m,T);
+    double L = Inicializar(vector,vector_fuerza, N,LUTF,Ntable, rho, m,T);
 
     for (int i=0;i<Term;i++){
       Verlet(vector,&vector_fuerza,N,LUTF, Ntable,m,h,L);
@@ -359,6 +358,7 @@ int main(int argc, char const *argv[]) {
     secs = time(NULL)-secs;
     printf("%d hs %d mins, %d segs\n", secs/3600, (secs/60)%60, secs%60);
 
+    fclose(fp);
     free(Ecin);
     free(Epot);
     free(Ecin_k);
@@ -368,4 +368,67 @@ int main(int argc, char const *argv[]) {
     free(LUTP);
     free(LUTF);
   }
+// Se pasa la cantidad de temperaturas, la minima, la maxima, la cantidad de pasos y el tiempo de termalizacion
+  if(opcion=='c'){
+    int N_pasos, Term, Cant_T;
+    double Tmin, Tmax;
+    sscanf(argv[2],"%d",&Cant_T);
+    sscanf(argv[3],"%lg",&Tmin);
+    sscanf(argv[4],"%lg",&Tmax);
+    sscanf(argv[5],"%d",&N_pasos);
+    sscanf(argv[6],"%d",&Term);
+    double T=Tmin;
+
+    int secs;
+    int N = 125;
+    double rho=0.8442;
+    double m=1;
+    double h = 1.0E-4;
+    double* vector = malloc(6*N*sizeof(double));
+    double* vector_fuerza=malloc(3*N*sizeof(double));
+    double* Ecin = malloc(N_pasos*sizeof(double));
+    double* Epot = malloc(N_pasos*sizeof(double));
+    char nombre[50];
+    double* LUTF;
+    double* LUTP;
+    int Ntable = leer_tablas(&LUTP, &LUTF);
+    srand(time(NULL));
+
+
+    for(int l=0;l<Cant_T;l++){
+      secs = time(NULL);
+      T = Tmin+l*(Tmax-Tmin)/(Cant_T-1);
+      double L = Inicializar(vector,vector_fuerza, N,LUTF,Ntable, rho, m,T);
+      for(int i=0;i<Term;i++){
+        Verlet(vector,&vector_fuerza,N,LUTF, Ntable,m,h,L);
+      }
+      for(int i=0;i<N_pasos;i++){
+        Verlet(vector,&vector_fuerza,N,LUTF, Ntable,m,h,L);
+        Ecin[i] = Energia_Cinetica(vector, N, m);
+        Epot[i] = Energia_Potencial(vector,  N,  LUTP,  Ntable,  L);
+      }
+      sprintf(nombre,"Energia_T_%4.4f.txt", T);
+      FILE* fp = fopen(nombre, "w");
+      fprintf(fp, "#Cinetica:\n");
+      for(int i=0;i<N_pasos;i++){
+        fprintf(fp, "%lg ", Ecin[i]);
+      }
+      fprintf(fp, "\n#Potencial:\n");
+      for(int i=0;i<N_pasos;i++){
+        fprintf(fp, "%lg ", Epot[i]);
+      }
+      fprintf(fp, "\n");
+      fclose(fp);
+      secs = time(NULL)-secs;
+      printf("Temperatura %lg en %d hs %d mins, %d segs\n", T, secs/3600, (secs/60)%60, secs%60);
+    }
+    free(vector);
+    free(vector_fuerza);
+    free(Ecin);
+    free(Epot);
+    free(LUTP);
+    free(LUTF);
+
+  }
+  return 0;
 }
