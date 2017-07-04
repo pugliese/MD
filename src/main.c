@@ -182,7 +182,7 @@ int main(int argc, char const *argv[]) {
     sscanf(argv[4],"%lg",&Tmax);
     sscanf(argv[5],"%d",&N_pasos);
     sscanf(argv[6],"%d",&Term);
-    double T=Tmin;
+    double T=Tmin,Tposta;
 
     int secs;
     int N = 125;
@@ -211,6 +211,8 @@ int main(int argc, char const *argv[]) {
         Ecin[i] = Energia_Cinetica(vector, N, m);
         Epot[i] = Energia_Potencial(vector,  N,  LUTP,  Ntable,  L);
       }
+      Tposta = esperanza(Ecin,N_pasos)*2.0/(3*N);
+      printf("T = %lg -> E = %lg\n", Tposta,esperanza(Epot,N_pasos)+3*0.5*N*Tposta);
       sprintf(nombre,"Energia_T_%4.4f.txt", T);
       FILE* fp = fopen(nombre, "w");
       fprintf(fp, "#Cinetica:\n");
