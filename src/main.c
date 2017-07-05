@@ -185,8 +185,8 @@ int main(int argc, char const *argv[]) {
     double T=Tmin,Tposta;
 
     int secs;
-    int N = 125;
-    double rho=0.8442;
+    int N = 512;
+    double rho = 0.8442;
     double m=1;
     double h = 1.0E-4;
     double* vector = malloc(6*N*sizeof(double));
@@ -210,6 +210,7 @@ int main(int argc, char const *argv[]) {
         Verlet(vector,&vector_fuerza,N,LUTF, Ntable,m,h,L);
         Ecin[i] = Energia_Cinetica(vector, N, m);
         Epot[i] = Energia_Potencial(vector,  N,  LUTP,  Ntable,  L);
+        if(i%(N_pasos/20)==0) printf("Paso %d\n", i);
       }
       Tposta = esperanza(Ecin,N_pasos)*2.0/(3*N);
       printf("T = %lg -> E = %lg\n", Tposta,esperanza(Epot,N_pasos)+3*0.5*N*Tposta);
@@ -283,7 +284,7 @@ int main(int argc, char const *argv[]) {
 
       Etot[t] = Ecin[t]+Epot[t] ;
       T_deseada = T - (2.4/n);
-      Reescalar_Vel(vector,N,T,T_deseada);
+      //Reescalar_Vel(vector,N,T,T_deseada);
       T = T_deseada;
       printf("temperatura = %f\n", T );
     }
