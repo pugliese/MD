@@ -284,7 +284,7 @@ int main(int argc, char const *argv[]) {
 
       Etot[t] = Ecin[t]+Epot[t] ;
       T_deseada = T - (2.4/n);
-      //Reescalar_Vel(vector,N,T,T_deseada);
+      Reescalar_Vel(vector,N,sqrt(T/T_deseada));
       T = T_deseada;
       printf("temperatura = %f\n", T );
     }
