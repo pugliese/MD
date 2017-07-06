@@ -62,7 +62,7 @@ double Interpol(double *LUT, double R, double step){
 }
 
 int Reescalar_Vel(double *posvel,int N,double resca){
-  
+
   for (int i=3*N;i<6*N;i++){
     posvel[i] = resca * posvel[i];
   }
@@ -96,3 +96,10 @@ double esperanza(double *vector, int n) {
   return mu ;
 }
 //---------------------------------------------------------------//
+
+
+int rand_int(int a, int b){ // Devuelve un numero aleatorio entre a y b (inclusive)
+  int ancho = b-a+1;
+  int res = (int) (((float)rand()/RAND_MAX)*ancho);
+  return (res%ancho)+a;
+}
