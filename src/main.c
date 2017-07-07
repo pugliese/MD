@@ -413,18 +413,18 @@ int main(int argc, char const *argv[]) {
 
   if(opcion =='3'){
     int secs = time(NULL);
-    int N_pasos = 1000;
+    int N_pasos = 2000;
     int N = 512;
     double rho=0.8442;
     double m=1;
-    double T=1.5;
+    double T=1.1;
     sscanf(argv[2],"%lg",&rho);
     double h = 5E-4;
     double* vector = malloc(6*N*sizeof(double));
     double* vector_fuerza=malloc(3*N*sizeof(double));
     double* LUTF;
     double* LUTP;
-    int Q_pasos = 10 ;
+    int Q_pasos = 50 ;
     int Ntable = leer_tablas(&LUTP, &LUTF);
     int Term = 2000;
     srand(time(NULL));

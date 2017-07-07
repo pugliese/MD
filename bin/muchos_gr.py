@@ -20,6 +20,7 @@ for i in range (len(sys.argv)-1):
 #x= np.arange(0,len(r[0]),1)
 plt.figure(1)
 plt.grid ()
+plt.title("g(r) para T=adefinir")
 for i in range (len(sys.argv)-1):
 	plt.plot(x[i],r[i],'.-',label=nombres[i])
 plt.legend(loc='best')
