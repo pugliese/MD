@@ -56,7 +56,7 @@ int Verlet_vel(double *vector_posvel, double *vector_fuerza,double *vector_fuerz
 
 double Calcular_Fuerzas(double *vector_posvel, double *vector_fuerza, int N, double *LUTF, int Ntabla, double L){
 
-  double R,F,dr,comp_k;
+  double R,F,comp_k;
   double P=0;
   double *pos_aux = malloc(3*N*sizeof(double));
   for(int i=0;i<3*N;i++){
@@ -68,12 +68,11 @@ double Calcular_Fuerzas(double *vector_posvel, double *vector_fuerza, int N, dou
   		R = Distancia(vector_posvel,N,i,j, L);
   		F = Valor_LUT(LUTF,Ntabla,R);
   		for(int k=0;k<3;k++){
-        dr=Delta(vector_posvel, N, k, i, j, L);
-        comp_k = F*dr/R;
-        P = P + comp_k*dr;
+        comp_k = Delta(vector_posvel, N, k, i, j, L)*F/R;
         vector_fuerza[i+k*N] = vector_fuerza[i+k*N]+comp_k;
   			vector_fuerza[j+k*N] = vector_fuerza[j+k*N]-comp_k;
   		}
+      P = P + F*R; // Me di cuenta que esta formula es mas compacta
   	}
   }
 

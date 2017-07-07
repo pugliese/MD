@@ -19,7 +19,7 @@ int main(int argc, char const *argv[]) {
   }
   if(opcion=='t'){  // Para generar la tabla, luego del .e escribimos t para que sepa que
     int N=300000;  // debe generar la tabla seguido de la cantidad de puntos que queremos
-    if(argc>1){
+    if(argc>2){
         sscanf(argv[2],"%d", &N);
     }
     double* LUT1 = LUT_P(N);
@@ -242,7 +242,7 @@ int main(int argc, char const *argv[]) {
 
 
   //----------------------------------------------------------------------------------//
-
+/*
   if(opcion == '2'){
     double T=2.0;
     int n=100;
@@ -299,12 +299,115 @@ int main(int argc, char const *argv[]) {
     fprintf(fp, "\n");
     fclose(fp);
 
+    free(Ecin);
+    free(Epot);
+    free(Etot);
+    free(P);
+    free(vector);
+    free(vector_fuerza);
+    free(LUTP);
+    free(LUTF);
 
     secs = time(NULL)-secs;
     printf("%d hs %d mins, %d segs\n", secs/3600, (secs/60)%60, secs%60);
+  }*/
+
+  if (opcion=='2'){
+    double T=2.0;
+    int n=33;
+    int N_muestras=100;  // Cantidad de muestras por temperatura
+    int pasos = 100;    // Cantidad de pasos (media) entre temperaturas; la cantidad es un valor aleatorio entre pasos/2 y 3*pasos/2
+    int Term = 2000;
+    double rho=0.8;
+    if(argc>2) sscanf(argv[2],"%lg",&rho);
+    if(argc>3) sscanf(argv[3],"%d",&n);
+    if(argc>4) sscanf(argv[4], "%d", &N_muestras);
+    if(argc>5) sscanf(argv[5], "%d", &pasos);
+    if(argc>6) sscanf(argv[6], "%d", &Term);
+    int secs = time(NULL);
+    int N = 125;
+    double m = 1;
+    double h = 1.0E-4;
+    double* vector = malloc(6*N*sizeof(double));
+    double* vector_fuerza=malloc(3*N*sizeof(double));
+    double* Ecin = malloc(N_muestras*sizeof(double));
+    double* Etot = malloc(N_muestras*sizeof(double));
+    double* P = malloc(N_muestras*sizeof(double));
+
+    double* LUTF;
+    double* LUTP;
+    int Ntable = leer_tablas(&LUTP, &LUTF);
+    srand(time(NULL));
+
+    double L = Inicializar(vector,vector_fuerza, N,LUTF,Ntable, rho, m,T);
+    double Vol = L*L*L;
+    double T_deseada;
+    double Pex;
+
+// Termalizo el estado inicial (es el que mas tarda)
+    printf("Calculando T = %1.3f\n", T);
+    for(int i=0;i<Term;i++){
+      Verlet(vector,&vector_fuerza,N,LUTF, Ntable,m,h,L);
+    }
+    for(int i=0;i<N_muestras;i++){
+      for(int j=1;j<rand_int(pasos/2,3*pasos/2);j++){  // Hago 1 menos porque avanzo despues (me evito actualizar Pex al pedo)
+        Verlet(vector,&vector_fuerza,N,LUTF, Ntable,m,h,L);
+      }
+      Pex = Verlet(vector,&vector_fuerza,N,LUTF, Ntable,m,h,L);
+      Ecin[i] = Energia_Cinetica(vector,N,m);
+      Etot[i] = Ecin[i] + Energia_Potencial(vector,  N,  LUTP,  Ntable,  L);
+      P[i] = Presion(Pex, Ecin[i], Vol);
+    }
+    char name[100];
+    sprintf(name, "2_E_P_%1.3f.txt", rho);
+    FILE* fp = fopen(name, "w");   // >>>>>>> LOS DATOS SE GUARDAN EN [COLUMNAS] <<<<<
+    fprintf(fp, "#Cinetica #Total #Presion\n");
+    for(int i=0;i<N_muestras;i++) fprintf(fp, "%lg %lg %lg\n", Ecin[i], Etot[i], P[i]);
+    fclose(fp);
+
+// Ahora lo hago para las demas temperaturas (Si solo es 1, no hace nada)
+// No se si lo optimo seria abrir y cerrar el programa en cada paso o dejarlo abierto de una
+    for(int t=0;t<n-1;t++){
+      T_deseada = T - 1.6/(n-1);
+      Reescalar_Vel(vector,N,sqrt(T_deseada/T));
+      T = T_deseada;
+      printf("Calculando T = %1.3f\n", T);
+      for(int i=0;i<2*Term/n;i++){ // Termalizo menos, dependiendo del salto en T
+        Verlet(vector,&vector_fuerza,N,LUTF, Ntable,m,h,L);
+      }
+      for(int i=0;i<N_muestras;i++){
+        for(int j=1;j<rand_int(pasos/2,3*pasos/2);j++){
+          Verlet(vector,&vector_fuerza,N,LUTF, Ntable,m,h,L);
+        }
+        Pex = Verlet(vector,&vector_fuerza,N,LUTF, Ntable,m,h,L);
+        Ecin[i] = Energia_Cinetica(vector,N,m);
+        Etot[i] = Ecin[i] + Energia_Potencial(vector,  N,  LUTP,  Ntable,  L);
+        P[i] = Presion( Pex, Ecin[i], Vol);
+      }
+      fp = fopen(name, "a");   // Uso "a" para appendear los nuevos datos al final
+      for(int i=0;i<N_muestras;i++) fprintf(fp, "%lg %lg %lg\n", Ecin[i], Etot[i], P[i]);
+      fclose(fp);
+    }
+
+    free(Ecin);
+    free(Etot);
+    free(P);
+    free(vector);
+    free(vector_fuerza);
+    free(LUTP);
+    free(LUTF);
+    secs = time(NULL)-secs;
+    printf("En total fueron %d hs %d mins, %d segs\n", secs/3600, (secs/60)%60, secs%60);
   }
 
   //----------------------------------------------------------------------------------
+
+  if(opcion=='r'){
+    for(int i=0;i<5000;i++){
+      printf("%d ", rand_int(1,10));
+    }
+    printf("\n");
+  }
 
   if(opcion =='3'){
     int secs = time(NULL);
