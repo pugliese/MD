@@ -20,26 +20,53 @@ def sort(x,y):
 				swap(x,i,j)
 				swap(y,i,j)
 
-cwd=os.getcwd()
-ls=os.listdir(cwd)
-N=512
+cwd = os.getcwd()
+ls = os.listdir(cwd)
 Term = 2000
-T=np.array([])
-E=np.array([])
+LCorr = 1500
+NPasos = 40000
+#data[ N**1/3-2 ] = [ [T], [E] , [EcInv] ]
+data = [ [ [] , [] , [] ] for i in range(8)]
+
+idxMean = []
+for i in range(NPasos/Term):
+	idxMean = idxMean + range(i*Term,i*Term+LCorr)
+
+#idxMean = range(0,40000,Term)
 
 for files in ls:
 
-	if files.endswith(".txt"):
-		
+	if files.endswith(".txt") and files!='tablas.txt':
+
+		f = open(files,"r")
+		f.readline()
+		N = f.readline()
+		N = N.split(" ")
+		N = int(N[-1])
+		idx = int(np.ceil(N**(1.0/3)))-2
+
 		EcVect, EpVect = np.loadtxt(files)
 		Etot = EcVect + EpVect
-		Etot = Etot.reshape((len(Etot)/Term,Term))
-		E = np.append(E, np.mean(np.mean(Etot,axis=1)))
-		EcVect = EcVect.reshape((len(EcVect)/Term,Term))
-		T = np.append(T,np.mean(np.mean(EcVect*2/(3.0*N),axis=1)))
+		"""
+		#Comun
+		E = np.mean(Etot[idxMean])
+		T = np.mean(EcVect[idxMean]*2/(3.0*N))
+		EcInv = np.mean(np.power(EcVect[idxMean],-1.0))
+		"""
+		#Super Canchera
+		Etot = Etot[idxMean]
+		EcVect = EcVect[idxMean]
+		Etot = Etot.reshape((len(idxMean)/LCorr,LCorr))
+		E = np.mean(np.mean(Etot,axis=1))
+		EcVect = EcVect.reshape((len(idxMean)/LCorr,LCorr))
+		T = np.mean(np.mean(EcVect*2/(3.0*N),axis=1))
+		EcInv = np.mean(np.power(np.mean(EcVect,axis=1),-1.0))
+		
+		data[idx][0].append(T)
+		data[idx][1].append(E)
+		data[idx][2].append(EcInv)	
 
-sort(T,E)
-np.savetxt("analisis.out", [T,E], header = "<T> <E>, Term = "+ str(Term) + " y Npasos = "+ str(len(EpVect)))
-		
-		
+data = np.array(data)
+
+np.save("analisis.npy",data)
 		

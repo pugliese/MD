@@ -175,17 +175,18 @@ int main(int argc, char const *argv[]) {
 
 // Se pasa la cantidad de temperaturas, la minima, la maxima, la cantidad de pasos y el tiempo de termalizacion
   if(opcion=='c'){
-    int N_pasos, Term, Cant_T;
+    int N_pasos, Term, Cant_T,N;
     double Tmin, Tmax;
+
     sscanf(argv[2],"%d",&Cant_T);
     sscanf(argv[3],"%lg",&Tmin);
     sscanf(argv[4],"%lg",&Tmax);
     sscanf(argv[5],"%d",&N_pasos);
     sscanf(argv[6],"%d",&Term);
-    double T=Tmin,Tposta;
+    sscanf(argv[7],"%d",&N);
 
+    double T=Tmin,Tposta;
     int secs;
-    int N = 512;
     double rho = 0.8442;
     double m=1;
     double h = 1.0E-4;
@@ -210,12 +211,13 @@ int main(int argc, char const *argv[]) {
         Verlet(vector,&vector_fuerza,N,LUTF, Ntable,m,h,L);
         Ecin[i] = Energia_Cinetica(vector, N, m);
         Epot[i] = Energia_Potencial(vector,  N,  LUTP,  Ntable,  L);
-        if(i%(N_pasos/20)==0) printf("Paso %d\n", i);
+        if(i%(N_pasos/20)==0) printf("N = %d, T = %f, Paso %d\n", N,T,i);
       }
       Tposta = esperanza(Ecin,N_pasos)*2.0/(3*N);
       printf("T = %lg -> E = %lg\n", Tposta,esperanza(Epot,N_pasos)+3*0.5*N*Tposta);
-      sprintf(nombre,"Energia_T_%4.4f.txt", T);
+      sprintf(nombre,"Energia_T_%4.4f_N_%d.txt", T, N);
       FILE* fp = fopen(nombre, "w");
+      fprintf(fp, "#T = %f\n#N = %d\n", T, N);
       fprintf(fp, "#Cinetica:\n");
       for(int i=0;i<N_pasos;i++){
         fprintf(fp, "%lg ", Ecin[i]);
@@ -478,7 +480,9 @@ int main(int argc, char const *argv[]) {
   //----------------------------------------------------------------------------------
 
   if(opcion=='r'){
-    for(int i=0;i<5000;i++){
+    srand(time(NULL));
+    for(int i=0;i<10000;i++){
+
       printf("%d ", rand_int(1,10));
     }
     printf("\n");
@@ -486,26 +490,35 @@ int main(int argc, char const *argv[]) {
 
   if(opcion =='3'){
     int secs = time(NULL);
-    int N_pasos = 3000;
+    int N_pasos = 2000;
     int N = 512;
     double rho=0.8442;
     double m=1;
-    double T=1.5;
+    double T=1.1;
     sscanf(argv[2],"%lg",&rho);
     double h = 5E-4;
     double* vector = malloc(6*N*sizeof(double));
     double* vector_fuerza=malloc(3*N*sizeof(double));
     double* LUTF;
     double* LUTP;
-    int Q_pasos = 100 ;
+    int Q_pasos = 50 ;
     int Ntable = leer_tablas(&LUTP, &LUTF);
+    int Term = 2000;
     srand(time(NULL));
 
     double L=Inicializar(vector,vector_fuerza, N,LUTF,Ntable, rho, m,T);
 
+    for(int i=0;i<Term;i++){
+      Verlet(vector,&vector_fuerza,N,LUTF, Ntable,m,h,L);
+    }
+
+/*    for(int i=0;i<2*Term/n;i++){ // Termalizo menos, dependiendo del salto en T
+      Verlet(vector,&vector_fuerza,N,LUTF, Ntable,m,h,L);
+    }
+*/
     double dr = 0.01*pow(1.0/rho,1./3);
 
-    printf("dr=%lg, L=%lg, rho=%lg, T=%lg  \n",dr,L,rho,T );
+    printf("dr=%lg, L=%lg, T=%lg,rho=%lg  \n",dr,L,T,rho );
 
     int nhist= ceil (L/dr);
 
@@ -526,13 +539,14 @@ int main(int argc, char const *argv[]) {
         printf("Paso %d\n", q+1);
 
     }
+
     char name[100];
     sprintf(name, "Histo_gr_%lg.txt", rho);
 
     FILE* fp = fopen(name, "w");
-    fprintf(fp, "#g(r)\n");
+    fprintf(fp, "# x(rho), g(r), T=%lg \n", T);
     for(int i=0;i<nhist/2;i++){
-      fprintf(fp, " %lg \n", himean[i]);
+      fprintf(fp, "%lg %lg \n", dr*i,himean[i]);
     }
 
     fclose(fp);
