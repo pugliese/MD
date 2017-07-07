@@ -175,17 +175,18 @@ int main(int argc, char const *argv[]) {
 
 // Se pasa la cantidad de temperaturas, la minima, la maxima, la cantidad de pasos y el tiempo de termalizacion
   if(opcion=='c'){
-    int N_pasos, Term, Cant_T;
+    int N_pasos, Term, Cant_T,N;
     double Tmin, Tmax;
+
     sscanf(argv[2],"%d",&Cant_T);
     sscanf(argv[3],"%lg",&Tmin);
     sscanf(argv[4],"%lg",&Tmax);
     sscanf(argv[5],"%d",&N_pasos);
     sscanf(argv[6],"%d",&Term);
-    double T=Tmin,Tposta;
+    sscanf(argv[7],"%d",&N);
 
+    double T=Tmin,Tposta;
     int secs;
-    int N = 512;
     double rho = 0.8442;
     double m=1;
     double h = 1.0E-4;
@@ -210,12 +211,13 @@ int main(int argc, char const *argv[]) {
         Verlet(vector,&vector_fuerza,N,LUTF, Ntable,m,h,L);
         Ecin[i] = Energia_Cinetica(vector, N, m);
         Epot[i] = Energia_Potencial(vector,  N,  LUTP,  Ntable,  L);
-        if(i%(N_pasos/20)==0) printf("Paso %d\n", i);
+        if(i%(N_pasos/20)==0) printf("N = %d, T = %f, Paso %d\n", N,T,i);
       }
       Tposta = esperanza(Ecin,N_pasos)*2.0/(3*N);
       printf("T = %lg -> E = %lg\n", Tposta,esperanza(Epot,N_pasos)+3*0.5*N*Tposta);
-      sprintf(nombre,"Energia_T_%4.4f.txt", T);
+      sprintf(nombre,"Energia_T_%4.4f_N_%d.txt", T, N);
       FILE* fp = fopen(nombre, "w");
+      fprintf(fp, "#T = %f\n#N = %d\n", T, N);
       fprintf(fp, "#Cinetica:\n");
       for(int i=0;i<N_pasos;i++){
         fprintf(fp, "%lg ", Ecin[i]);
