@@ -401,7 +401,9 @@ int main(int argc, char const *argv[]) {
   //----------------------------------------------------------------------------------
 
   if(opcion=='r'){
-    for(int i=0;i<5000;i++){
+    srand(time(NULL));
+    for(int i=0;i<10000;i++){
+
       printf("%d ", rand_int(1,10));
     }
     printf("\n");
@@ -409,7 +411,7 @@ int main(int argc, char const *argv[]) {
 
   if(opcion =='3'){
     int secs = time(NULL);
-    int N_pasos = 3000;
+    int N_pasos = 1000;
     int N = 512;
     double rho=0.8442;
     double m=1;
@@ -420,15 +422,20 @@ int main(int argc, char const *argv[]) {
     double* vector_fuerza=malloc(3*N*sizeof(double));
     double* LUTF;
     double* LUTP;
-    int Q_pasos = 100 ;
+    int Q_pasos = 10 ;
     int Ntable = leer_tablas(&LUTP, &LUTF);
+    int Term = 2000;
     srand(time(NULL));
 
     double L=Inicializar(vector,vector_fuerza, N,LUTF,Ntable, rho, m,T);
 
+    for(int i=0;i<Term;i++){
+      Verlet(vector,&vector_fuerza,N,LUTF, Ntable,m,h,L);
+    }
+
     double dr = 0.01*pow(1.0/rho,1./3);
 
-    printf("dr=%lg, L=%lg, rho=%lg, T=%lg  \n",dr,L,rho,T );
+    printf("dr=%lg, L=%lg, T=%lg,rho=%lg  \n",dr,L,T,rho );
 
     int nhist= ceil (L/dr);
 
