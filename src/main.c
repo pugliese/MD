@@ -309,7 +309,7 @@ int main(int argc, char const *argv[]) {
     secs = time(NULL)-secs;
     printf("%d hs %d mins, %d segs\n", secs/3600, (secs/60)%60, secs%60);
   }*/
-
+/* Muestreo aleatorio
   if (opcion=='2'){
     double T=2.0;
     int n=33;
@@ -397,7 +397,84 @@ int main(int argc, char const *argv[]) {
     secs = time(NULL)-secs;
     printf("En total fueron %d hs %d mins, %d segs\n", secs/3600, (secs/60)%60, secs%60);
   }
+*/
 
+  if(opcion=='2'){
+    double Tmax=2.0, Tmin = 0.1, T = Tmax;
+    int n=33;
+    int N_muestras=100;  // Cantidad de muestras por temperatura
+    int Term = 2000;
+    double rho=0.8;
+    if(argc>2) sscanf(argv[2],"%lg",&rho);
+    if(argc>3) sscanf(argv[3],"%d",&n);
+    if(argc>4) sscanf(argv[4], "%d", &N_muestras);
+    if(argc>5) sscanf(argv[5], "%d", &Term);
+    //if(argc>6) sscanf(argv[6], "%d", &Term);
+    int secs = time(NULL);
+    int N = 125;
+    double m = 1;
+    double h = 1.0E-4;
+    double* vector = malloc(6*N*sizeof(double));
+    double* vector_fuerza=malloc(3*N*sizeof(double));
+    double* Ecin = malloc(n*sizeof(double));
+    double* Etot = malloc(n*sizeof(double));
+    double* P = malloc(n*sizeof(double));
+
+    double* LUTF;
+    double* LUTP;
+    int Ntable = leer_tablas(&LUTP, &LUTF);
+    srand(time(NULL));
+
+    double L = Inicializar(vector,vector_fuerza, N,LUTF,Ntable, rho, m,T);
+    double Vol = L*L*L;
+    double T_deseada;
+    double Pex;
+// Temperatura inicial Tmax
+    printf("Calculando T = %1.3f\n", T);
+    for(int i=0;i<Term;i++){
+      Verlet(vector,&vector_fuerza,N,LUTF, Ntable,m,h,L);
+    }
+    for(int i=0;i<N_muestras;i++){
+      Pex = Verlet(vector,&vector_fuerza,N,LUTF, Ntable,m,h,L);
+      Ecin[0] = Energia_Cinetica(vector,N,m);
+      Etot[0] = Ecin[0] + Energia_Potencial(vector,  N,  LUTP,  Ntable,  L);
+      P[0] = Presion(Pex, Ecin[0], Vol);
+    }
+
+    for(int t=1;t<n;t++){
+      T_deseada = T - (Tmax-Tmin)/(n-1);
+      Reescalar_Vel(vector,N,sqrt(T_deseada/T));
+      T = T_deseada;
+      printf("Calculando T = %1.3f\n", T);
+      for(int i=0;i<2*Term/n;i++){
+        Verlet(vector,&vector_fuerza,N,LUTF, Ntable,m,h,L);
+      }
+      for(int i=0;i<N_muestras;i++){
+        Pex = Verlet(vector,&vector_fuerza,N,LUTF, Ntable,m,h,L);
+        Ecin[t] = Ecin[t] + Energia_Cinetica(vector,N,m)/N_muestras;
+        Etot[t] = Etot[t] + Energia_Potencial(vector,  N,  LUTP,  Ntable,  L)/N_muestras;
+        P[t] = P[t]+Pex/N_muestras;
+      }
+      P[t] = Presion(P[t],Ecin[t],Vol);
+      Etot[t] = Etot[t]+Ecin[t];
+    }
+    char name[100];
+    sprintf(name, "22_E_P_%1.3f.txt", rho);
+    FILE* fp = fopen(name, "w");   // >>>>>>> LOS DATOS SE GUARDAN EN [COLUMNAS] <<<<<
+    for(int i=0;i<n;i++) fprintf(fp, "%lg %lg %lg\n", Ecin[i], Etot[i], P[i]);
+
+    fclose(fp);
+
+    free(Ecin);
+    free(Etot);
+    free(P);
+    free(vector);
+    free(vector_fuerza);
+    free(LUTP);
+    free(LUTF);
+    secs = time(NULL)-secs;
+    printf("En total fueron %d hs %d mins, %d segs\n", secs/3600, (secs/60)%60, secs%60);
+  }
   //----------------------------------------------------------------------------------
 
   if(opcion=='r'){
