@@ -185,8 +185,8 @@ int main(int argc, char const *argv[]) {
     double T=Tmin,Tposta;
 
     int secs;
-    int N = 512;
-    double rho = 0.8442;
+    int N = 125;
+    double rho=0.8442;
     double m=1;
     double h = 1.0E-4;
     double* vector = malloc(6*N*sizeof(double));
@@ -210,7 +210,6 @@ int main(int argc, char const *argv[]) {
         Verlet(vector,&vector_fuerza,N,LUTF, Ntable,m,h,L);
         Ecin[i] = Energia_Cinetica(vector, N, m);
         Epot[i] = Energia_Potencial(vector,  N,  LUTP,  Ntable,  L);
-        if(i%(N_pasos/20)==0) printf("Paso %d\n", i);
       }
       Tposta = esperanza(Ecin,N_pasos)*2.0/(3*N);
       printf("T = %lg -> E = %lg\n", Tposta,esperanza(Epot,N_pasos)+3*0.5*N*Tposta);
@@ -284,7 +283,7 @@ int main(int argc, char const *argv[]) {
 
       Etot[t] = Ecin[t]+Epot[t] ;
       T_deseada = T - (2.4/n);
-      Reescalar_Vel(vector,N,sqrt(T/T_deseada));
+      Reescalar_Vel(vector,N,T,T_deseada);
       T = T_deseada;
       printf("temperatura = %f\n", T );
     }
@@ -341,6 +340,7 @@ int main(int argc, char const *argv[]) {
     double Vol = L*L*L;
     double T_deseada;
     double Pex;
+    int q_pasos;
 
 // Termalizo el estado inicial (es el que mas tarda)
     printf("Calculando T = %1.3f\n", T);
@@ -348,7 +348,8 @@ int main(int argc, char const *argv[]) {
       Verlet(vector,&vector_fuerza,N,LUTF, Ntable,m,h,L);
     }
     for(int i=0;i<N_muestras;i++){
-      for(int j=1;j<rand_int(pasos/2,3*pasos/2);j++){  // Hago 1 menos porque avanzo despues (me evito actualizar Pex al pedo)
+      q_pasos = rand_int(pasos/2,3*pasos/2);
+      for(int j=1;j<q_pasos;j++){  // Hago 1 menos porque avanzo despues (me evito actualizar Pex al pedo)
         Verlet(vector,&vector_fuerza,N,LUTF, Ntable,m,h,L);
       }
       Pex = Verlet(vector,&vector_fuerza,N,LUTF, Ntable,m,h,L);
@@ -364,7 +365,7 @@ int main(int argc, char const *argv[]) {
     fclose(fp);
 
 // Ahora lo hago para las demas temperaturas (Si solo es 1, no hace nada)
-// No se si lo optimo seria abrir y cerrar el programa en cada paso o dejarlo abierto de una
+// No se si lo optimo seria abrir y cerrar el .txt en cada paso o dejarlo abierto de una
     for(int t=0;t<n-1;t++){
       T_deseada = T - 1.6/(n-1);
       Reescalar_Vel(vector,N,sqrt(T_deseada/T));
@@ -374,7 +375,8 @@ int main(int argc, char const *argv[]) {
         Verlet(vector,&vector_fuerza,N,LUTF, Ntable,m,h,L);
       }
       for(int i=0;i<N_muestras;i++){
-        for(int j=1;j<rand_int(pasos/2,3*pasos/2);j++){
+        q_pasos = rand_int(pasos/2,3*pasos/2);
+        for(int j=1;j<q_pasos;j++){
           Verlet(vector,&vector_fuerza,N,LUTF, Ntable,m,h,L);
         }
         Pex = Verlet(vector,&vector_fuerza,N,LUTF, Ntable,m,h,L);
