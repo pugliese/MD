@@ -435,6 +435,10 @@ int main(int argc, char const *argv[]) {
       Verlet(vector,&vector_fuerza,N,LUTF, Ntable,m,h,L);
     }
 
+/*    for(int i=0;i<2*Term/n;i++){ // Termalizo menos, dependiendo del salto en T
+      Verlet(vector,&vector_fuerza,N,LUTF, Ntable,m,h,L);
+    }
+*/
     double dr = 0.01*pow(1.0/rho,1./3);
 
     printf("dr=%lg, L=%lg, T=%lg,rho=%lg  \n",dr,L,T,rho );
@@ -458,13 +462,14 @@ int main(int argc, char const *argv[]) {
         printf("Paso %d\n", q+1);
 
     }
+
     char name[100];
     sprintf(name, "Histo_gr_%lg.txt", rho);
 
     FILE* fp = fopen(name, "w");
-    fprintf(fp, "#g(r)\n");
+    fprintf(fp, "# x(rho), g(r), T=%lg \n", T);
     for(int i=0;i<nhist/2;i++){
-      fprintf(fp, " %lg \n", himean[i]);
+      fprintf(fp, "%lg %lg \n", dr*i,himean[i]);
     }
 
     fclose(fp);

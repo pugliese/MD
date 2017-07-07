@@ -8,18 +8,20 @@ import sys
 nombres=range(len(sys.argv)-1)
 i=0;
 r=range(len(sys.argv)-1);
+x=range(len(sys.argv)-1);
 for i in range (len(sys.argv)-1):
 	if len(sys.argv)>i:
-		r[i]= np.loadtxt(sys.argv[i+1],unpack=True)
+		x[i],r[i]= np.loadtxt(sys.argv[i+1],unpack=True)
 		buff=sys.argv[i+1]
 		buff=buff[9:]
 		buff=buff[:-4]
 		nombres[i]=buff
 
-x= np.arange(0,len(r[0]),1)
+#x= np.arange(0,len(r[0]),1)
 plt.figure(1)
+plt.grid ()
 for i in range (len(sys.argv)-1):
-	plt.plot(x,r[i],'.-',label=nombres[i])
+	plt.plot(x[i],r[i],'.-',label=nombres[i])
 plt.legend(loc='best')
 #plt.plot(x,r2,'.-r')
 #plt.plot(x,r3,'.-g')
