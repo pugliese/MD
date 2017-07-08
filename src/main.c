@@ -286,7 +286,7 @@ int main(int argc, char const *argv[]) {
 
       Etot[t] = Ecin[t]+Epot[t] ;
       T_deseada = T - (2.4/n);
-      Reescalar_Vel(vector,N,T,T_deseada);
+      Reescalar_Vel(vector,N,sqrt(T/T_deseada));
       T = T_deseada;
       printf("temperatura = %f\n", T );
     }
@@ -343,7 +343,6 @@ int main(int argc, char const *argv[]) {
     double Vol = L*L*L;
     double T_deseada;
     double Pex;
-    int q_pasos;
 
 // Termalizo el estado inicial (es el que mas tarda)
     printf("Calculando T = %1.3f\n", T);
@@ -351,8 +350,7 @@ int main(int argc, char const *argv[]) {
       Verlet(vector,&vector_fuerza,N,LUTF, Ntable,m,h,L);
     }
     for(int i=0;i<N_muestras;i++){
-      q_pasos = rand_int(pasos/2,3*pasos/2);
-      for(int j=1;j<q_pasos;j++){  // Hago 1 menos porque avanzo despues (me evito actualizar Pex al pedo)
+      for(int j=1;j<rand_int(pasos/2,3*pasos/2);j++){  // Hago 1 menos porque avanzo despues (me evito actualizar Pex al pedo)
         Verlet(vector,&vector_fuerza,N,LUTF, Ntable,m,h,L);
       }
       Pex = Verlet(vector,&vector_fuerza,N,LUTF, Ntable,m,h,L);
@@ -368,7 +366,7 @@ int main(int argc, char const *argv[]) {
     fclose(fp);
 
 // Ahora lo hago para las demas temperaturas (Si solo es 1, no hace nada)
-// No se si lo optimo seria abrir y cerrar el .txt en cada paso o dejarlo abierto de una
+// No se si lo optimo seria abrir y cerrar el programa en cada paso o dejarlo abierto de una
     for(int t=0;t<n-1;t++){
       T_deseada = T - 1.6/(n-1);
       Reescalar_Vel(vector,N,sqrt(T_deseada/T));
@@ -378,8 +376,7 @@ int main(int argc, char const *argv[]) {
         Verlet(vector,&vector_fuerza,N,LUTF, Ntable,m,h,L);
       }
       for(int i=0;i<N_muestras;i++){
-        q_pasos = rand_int(pasos/2,3*pasos/2);
-        for(int j=1;j<q_pasos;j++){
+        for(int j=1;j<rand_int(pasos/2,3*pasos/2);j++){
           Verlet(vector,&vector_fuerza,N,LUTF, Ntable,m,h,L);
         }
         Pex = Verlet(vector,&vector_fuerza,N,LUTF, Ntable,m,h,L);
@@ -416,7 +413,7 @@ int main(int argc, char const *argv[]) {
     if(argc>5) sscanf(argv[5], "%d", &Term);
     //if(argc>6) sscanf(argv[6], "%d", &Term);
     int secs = time(NULL);
-    int N = 512;
+    int N = 125;
     double m = 1;
     double h = 1.0E-4;
     double* vector = malloc(6*N*sizeof(double));
@@ -439,7 +436,6 @@ int main(int argc, char const *argv[]) {
     for(int i=0;i<Term;i++){
       Verlet(vector,&vector_fuerza,N,LUTF, Ntable,m,h,L);
     }
-    P[0] = 0;Etot[0] = 0;Ecin[0] = 0;
     for(int i=0;i<N_muestras;i++){
       Pex = Verlet(vector,&vector_fuerza,N,LUTF, Ntable,m,h,L);
       Ecin[0] = Energia_Cinetica(vector,N,m);
@@ -455,7 +451,6 @@ int main(int argc, char const *argv[]) {
       for(int i=0;i<2*Term/n;i++){
         Verlet(vector,&vector_fuerza,N,LUTF, Ntable,m,h,L);
       }
-      P[t] = 0;Etot[t] = 0;Ecin[t] = 0;
       for(int i=0;i<N_muestras;i++){
         Pex = Verlet(vector,&vector_fuerza,N,LUTF, Ntable,m,h,L);
         Ecin[t] = Ecin[t] + Energia_Cinetica(vector,N,m)/N_muestras;
@@ -466,7 +461,7 @@ int main(int argc, char const *argv[]) {
       Etot[t] = Etot[t]+Ecin[t];
     }
     char name[100];
-    sprintf(name, "22_E_P_512_%1.3f.txt", rho);
+    sprintf(name, "22_E_P_%1.3f.txt", rho);
     FILE* fp = fopen(name, "w");   // >>>>>>> LOS DATOS SE GUARDAN EN [COLUMNAS] <<<<<
     for(int i=0;i<n;i++) fprintf(fp, "%lg %lg %lg\n", Ecin[i], Etot[i], P[i]);
 
@@ -495,20 +490,20 @@ int main(int argc, char const *argv[]) {
 
   if(opcion =='3'){
     int secs = time(NULL);
-    int N_pasos = 2000;
+    int N_pasos = 5000;
     int N = 512;
     double rho=0.8442;
     double m=1;
-    double T=1.1;
+    double T=1.5;
     sscanf(argv[2],"%lg",&rho);
     double h = 5E-4;
     double* vector = malloc(6*N*sizeof(double));
     double* vector_fuerza=malloc(3*N*sizeof(double));
     double* LUTF;
     double* LUTP;
-    int Q_pasos = 50 ;
+    int Q_pasos = 500 ;
     int Ntable = leer_tablas(&LUTP, &LUTF);
-    int Term = 2000;
+    int Term = 5000;
     srand(time(NULL));
 
     double L=Inicializar(vector,vector_fuerza, N,LUTF,Ntable, rho, m,T);

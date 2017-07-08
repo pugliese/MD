@@ -58,8 +58,10 @@ double Calcular_Fuerzas(double *vector_posvel, double *vector_fuerza, int N, dou
 
   double R,F,comp_k;
   double P=0;
+  double *pos_aux = malloc(3*N*sizeof(double));
   for(int i=0;i<3*N;i++){
     vector_fuerza[i]=0;
+    pos_aux[i] = vector_posvel[i];
   }
   for(int i=0;i<N;i++){
   	for(int j=i+1;j<N;j++){
@@ -73,6 +75,6 @@ double Calcular_Fuerzas(double *vector_posvel, double *vector_fuerza, int N, dou
       P = P + F*R; // Me di cuenta que esta formula es mas compacta
   	}
   }
-
+  free (pos_aux);
   return P;
 }
