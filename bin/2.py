@@ -3,14 +3,7 @@ import numpy as np
 import sys
 
 rho = float(sys.argv[1])
-name = "2_E_P_%1.3f.txt" %rho
-N=125
-N_T = 300
-
-data = np.loadtxt(name)
-Ecin = data[:,0]
-E = data[:,1]
-P = data[:,2]
+name = "2_E_P_%1.3f.txt" %rho;
 Eo = np.median(E)
 DE = (max(E)-min(E))/10
 Ecin2 = Ecin.reshape((len(Ecin)/N_T,N_T))

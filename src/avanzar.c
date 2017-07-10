@@ -75,6 +75,6 @@ double Calcular_Fuerzas(double *vector_posvel, double *vector_fuerza, int N, dou
       P = P + F*R; // Me di cuenta que esta formula es mas compacta
   	}
   }
-
+  free (pos_aux);
   return P;
 }

@@ -461,7 +461,7 @@ int main(int argc, char const *argv[]) {
       Etot[t] = Etot[t]+Ecin[t];
     }
     char name[100];
-    sprintf(name, "22_E_P_%1.3f.txt", rho);
+    sprintf(name, "22_E_P_%d_%1.3f.txt", N,rho);
     FILE* fp = fopen(name, "w");   // >>>>>>> LOS DATOS SE GUARDAN EN [COLUMNAS] <<<<<
     for(int i=0;i<n;i++) fprintf(fp, "%lg %lg %lg\n", Ecin[i], Etot[i], P[i]);
 
@@ -490,20 +490,20 @@ int main(int argc, char const *argv[]) {
 
   if(opcion =='3'){
     int secs = time(NULL);
-    int N_pasos = 2000;
+    int N_pasos = 5000;
     int N = 512;
     double rho=0.8442;
     double m=1;
-    double T=1.1;
+    double T=1.5;
     sscanf(argv[2],"%lg",&rho);
     double h = 5E-4;
     double* vector = malloc(6*N*sizeof(double));
     double* vector_fuerza=malloc(3*N*sizeof(double));
     double* LUTF;
     double* LUTP;
-    int Q_pasos = 50 ;
+    int Q_pasos = 500 ;
     int Ntable = leer_tablas(&LUTP, &LUTF);
-    int Term = 2000;
+    int Term = 5000;
     srand(time(NULL));
 
     double L=Inicializar(vector,vector_fuerza, N,LUTF,Ntable, rho, m,T);
