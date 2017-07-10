@@ -186,7 +186,7 @@ int main(int argc, char const *argv[]) {
     sscanf(argv[7],"%d",&N);
 
     double T=Tmin,Tposta;
-    int secs;
+    int totaltime,secs;
     double rho = 0.8442;
     double m=1;
     double h = 1.0E-4;
@@ -200,13 +200,17 @@ int main(int argc, char const *argv[]) {
     int Ntable = leer_tablas(&LUTP, &LUTF);
     srand(time(NULL));
 
+    totaltime = time(NULL);
+
     for(int l=0;l<Cant_T;l++){
       secs = time(NULL);
       T = Tmin+l*(Tmax-Tmin)/(Cant_T-1);
       double L = Inicializar(vector,vector_fuerza, N,LUTF,Ntable, rho, m,T);
+      printf("Termalizando para T = %f\n", T);
       for(int i=0;i<Term;i++){
         Verlet(vector,&vector_fuerza,N,LUTF, Ntable,m,h,L);
       }
+      printf("Termalizacion OK!\n");
       for(int i=0;i<N_pasos;i++){
         Verlet(vector,&vector_fuerza,N,LUTF, Ntable,m,h,L);
         Ecin[i] = Energia_Cinetica(vector, N, m);
@@ -231,6 +235,10 @@ int main(int argc, char const *argv[]) {
       secs = time(NULL)-secs;
       printf("Temperatura %lg en %d hs %d mins, %d segs\n", T, secs/3600, (secs/60)%60, secs%60);
     }
+
+    totaltime = time(NULL)-totaltime;
+    printf("Tiempo total transcurrido: %d hs %d mins, %d segs\n", totaltime/3600, (totaltime/60)%60, totaltime%60);
+
     free(vector);
     free(vector_fuerza);
     free(Ecin);
@@ -559,5 +567,63 @@ int main(int argc, char const *argv[]) {
     secs = time(NULL)-secs;
     printf("%d hs %d mins, %d segs\n", secs/3600, (secs/60)%60, secs%60);
   }
+
+  if(opcion=='v'){
+    int secs = time(NULL);
+    int N_pasos = 10000;
+    int N = 125;
+    double rho = 0.4;
+    double m = 1;
+    double Tini = 2.0;
+    double Tactual=Tini;
+    double Tdeseada;
+    double Tfin = 0.4;
+    double stepT = 0.05;
+    int cantT = (Tini-Tfin)/stepT;
+    //sscanf(argv[2],"%lg",&rho);
+    double h = 5E-4;
+    double* vector = malloc(6*N*sizeof(double));
+    double* vector_fuerza=malloc(3*N*sizeof(double));
+    double *dataVerlet=malloc(N_pasos*sizeof(double));
+    double* LUTF;
+    double* LUTP;
+    int Ntable = leer_tablas(&LUTP, &LUTF);
+    char name[100];
+
+    srand(time(NULL));
+
+    double L = Inicializar(vector,vector_fuerza, N,LUTF,Ntable, rho, m,Tactual);
+
+    double a = L/pow(N,1.0/3);
+
+    for(int j=0;j<cantT;j++){
+
+      printf("T: %f\n", Tactual);
+      for(int i=0;i<N_pasos;i++){
+        dataVerlet[i] = Orden_verlet(vector,N,a);
+        Verlet(vector,&vector_fuerza,N,LUTF, Ntable,m,h,L);
+        if(i%(N_pasos/20)==0) printf("Paso: %d\n", i);
+      }
+
+      sprintf(name,"ordenVerlet_T_%f.txt",Tactual);
+      FILE *fs = fopen(name,"w");
+      fprintf(fs, "#T = %f\n",Tactual);
+      for(int i=0;i<N_pasos;i++) fprintf(fs, "%f ", dataVerlet[i]);
+      fclose(fs);
+      Tdeseada = Tactual - stepT;
+      Reescalar_Vel(vector,N,sqrt(Tdeseada/Tactual));
+      Tactual=Tdeseada;
+
+    }
+
+
+    free(vector);
+    free(vector_fuerza);
+    free(LUTP);
+    free(LUTF);
+    secs = time(NULL)-secs;
+    printf("%d hs %d mins, %d segs\n", secs/3600, (secs/60)%60, secs%60);
+  }
+
   return 0;
 }
