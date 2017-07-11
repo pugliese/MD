@@ -141,24 +141,68 @@ if(sys.argv[1]=="Tc"):
 
 if(sys.argv[1]=="E"):
     N=int(sys.argv[2])
-    rho = float(sys.argv[3])
-
-    T,E,P = cargar(N,rho)
-    plt.plot(T,E,"ro")
+    rhos = [float(sys.argv[i]) for i in range(3,len(sys.argv))]
+    colores = ["ro","bv","gs","yp", "kd","c^","mh","rx","k*"]
+    i=0
+    for r in rhos:
+        T,E,P = cargar(N,r)
+        if(r==0.8):
+            T=T[1:]
+            E=E[1:]
+        plt.plot(T,E/N,colores[i]+"--")
+        i=i+1
+    plt.legend([r'$\rho=%1.3f$' %r for r in rhos],loc=4,fontsize=15)
+    plt.axis([0.25, 2.5,-6,3])
+    plt.xlabel(r'$T^*$',fontsize=15)
+    plt.ylabel(r'$E^*/N$',fontsize=15)
+    tita = np.linspace(0,np.pi,50)
+    r = 0.1
+    #plt.plot(r*np.cos(tita)+1.05,4*r*np.sin(tita), "k--")
+    #plt.plot(np.linspace(0.7+r,1.05+r,50),np.linspace(-3.25,0,50), "k--")
+    #plt.plot(np.linspace(0.7+r,1.05+r,50)-2*r,np.linspace(-3.25,0,50), "k--")
+    #plt.plot(r*np.cos(tita+np.pi)+0.7,4*r*np.sin(tita+np.pi)-3.25, "k--")
+    plt.plot(np.linspace(0.7,1.25,50),np.linspace(-4,2,50), "k--")
+    #plt.text(0.1,0,"Cambio \nde fase",fontsize=17)
+    plt.text(1.1,2,"Cambio \nde fase",fontsize=16)
     plt.grid()
+    plt.savefig("Energia_T_2.png")
     plt.show()
 
 if(sys.argv[1]=="P"):
     N=int(sys.argv[2])
     rhos = [float(sys.argv[i]) for i in range(3,len(sys.argv))]
+    colores = ["ro","bv","ks","yp", "gd","c^","mh","rx","k*"]
+    i=0
     for r in rhos:
         T,E,P = cargar(N,r)
+        if (r==0.1):
+            T=T[1:]
+            P=P[1:]
+        if (r==0.55):
+            T=T[1:]
+            P=P[1:]
+        if (r==0.7):
+            T=T[:-3]
+            P=P[:-3]
         plt.figure(1)
-        plt.plot(T,P,"o")
-        plt.plot(T,r*T)
+        plt.plot(T,P/r,colores[i]+"--")
         plt.figure(2)
-        plt.plot(T,(P/(r*T)-1)/r,"o")
+        plt.plot(T,(P/(r*T)-1)/r,colores[i]+"--")
+        i = i+1
+    plt.figure(1)
     plt.grid()
+    T = np.linspace(0.1,2.5,25)
+    plt.plot(T,T, "r-")
+    plt.legend([r'$\rho^* =%1.3f$' %r for r in rhos]+["Gas ideal"],loc=4,fontsize=15)
+    plt.xlabel(r'$T^*$',fontsize=15)
+    plt.ylabel(r'$P^*/\rho^*$',fontsize=15)
+    plt.savefig("Presiones_T.png")
+    plt.figure(2)
+    plt.grid()
+    plt.legend([r'$\rho^* =%1.3f$' %r for r in rhos],loc=4,fontsize=15)
+    plt.xlabel(r'$T^*$',fontsize=15)
+    plt.ylabel(r'$P_{ex}^*/T^*(\rho^*)^2$',fontsize=15)
+    plt.savefig("Exceso_T.png")
     plt.show()
 
 if(sys.argv[1]=="V"):
@@ -208,19 +252,20 @@ if(sys.argv[1]=="V2"):
         i=i+1
     plt.axis([0, 0.7, -4, 2])
     plt.xlabel(r'$\rho^*$',fontsize=15)
-    plt.ylabel(r'$P_{ex}^*$',fontsize=15)
-    plt.legend(["T=%1.2f" %T for T in To],loc=2, borderaxespad=0.,fontsize=15)
+    plt.ylabel(r'$P_{ex}^*/T^*(\rho^*)^2$',fontsize=15)
+    plt.legend(["T^*=%1.2f" %T for T in To],loc=2, borderaxespad=0.,fontsize=15)
     plt.grid()
-    #plt.savefig("Exceso.png")
+    plt.savefig("Exceso_rho.png")
     plt.figure(2)
     plt.plot(To,B2,"ro--")
     plt.plot(To,B3,"bo--")
     plt.plot(To,B4,"go--")
     plt.legend([r'$B_2(T)$',r'$B_3(T)$',r'$B_4(T)$'],loc=4,fontsize=15)
+    #plt.legend([r'$A(T)$',r'$B(T)$',r'$C(T)$'],loc=4,fontsize=15)
     plt.xlabel(r'$T^*$',fontsize=15)
     plt.ylabel('Coeficientes',fontsize=15)
     plt.grid()
-    #plt.savefig("Coef_Virial.png")
+    plt.savefig("Coef_Virial.png")
     plt.show()
 """
 for i in range(len(rhos)):
