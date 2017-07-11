@@ -3,32 +3,41 @@ import numpy as np
 import sys
 
 rho = float(sys.argv[1])
-
 name = "2_E_P_%1.3f.txt" %rho;
-
-data = np.loadtxt(name)
-Ecin = data[:,0]
-E = data[:,1]
-P = data[:,2]
-N = 125
-print max(E), min(E)
-
-#print np.mean(Ecin[0:100])*2/(3*N), np.std(Ecin[0:100])*2/(3*N), max(Ecin[0:100])*2/(3*N), min(Ecin[0:100])*2/(3*N)
-
-plt.figure(1)
-plt.plot(E/N,2*Ecin/(3*N), "r.")
-plt.title("T(E)")
-plt.grid()
-plt.figure(2)
-plt.plot(2*Ecin/(3*N),P, "b.")
-plt.plot(2*Ecin/(3*N),2*rho*Ecin/(3*N), "r-")   ## Presion ideal
-plt.grid()
-plt.show()
+Eo = np.median(E)
+DE = (max(E)-min(E))/10
+Ecin2 = Ecin.reshape((len(Ecin)/N_T,N_T))
+E2 = E.reshape((len(E)/N_T,N_T))
+P2 = P.reshape((len(Ecin)/N_T,N_T))
 """
+plt.figure(1)
+plt.plot(E,Ecin*2/(3*N), "r.")
+plt.title("T(E)")
+plt.figure(2)
+plt.plot(Ecin*2/(3*N),P, "b.")
+plt.plot(Ecin*2/(3*N),rho*Ecin*2/(3*N), "r-")
+plt.title("P(T)")
+plt.figure(3)
 A=[]
 for i in range(len(E)):
-    if(abs(E[i]-.2*125)<.05*125):
-        A.append(Ecin[i]*2/(3*N))
+    if(abs(E[i]-Eo)<DE):
+        A.append(Ecin[i])
 plt.hist(A)
+name = "Histograma de T a E="+ str(Eo)
+plt.title(name)
+plt.figure(4)
+plt.plot(np.std(Ecin2,axis=1)*2/(3*N), "ro")
+plt.title("Desvio Estandar Temperatura")
+plt.figure(5)
+plt.plot(np.std(P2,axis=1), "bo")
+plt.title("Desvio Estandar Presion")
 plt.show()
 """
+
+plt.figure(1)
+plt.plot(np.mean(Ecin2,axis=1)*2/(3*N),np.mean(E2,axis=1)/N,"r.--")
+plt.xlabel("T")
+plt.figure(2)
+plt.plot(np.mean(Ecin2,axis=1)*2/(3*N),np.mean(P2,axis=1), "b.--")
+plt.plot(np.mean(Ecin2,axis=1)*2/(3*N),rho*np.mean(Ecin2,axis=1)*2/(3*N), "r-")
+plt.show()
