@@ -7,6 +7,7 @@
 #include <stdlib.h>
 #include <time.h>
 #include <math.h>
+#include "grabar.h"
 
 int main(int argc, char const *argv[]) {
 // Mi idea es tener la variable opcion que es un caracter que puede hacer referencia a las distintas opciones
@@ -35,7 +36,9 @@ int main(int argc, char const *argv[]) {
     printf("\t 'b' \t Ejecuta el punto 1.b), pide los parametros de grano grueso (cantidad de promedios y ancho de intervalo)\n");
     printf("\t 'c' \t Energias en funcion del tiempo; se pasa la cantidad de temperaturas, la minima, la maxima, la cantidad de pasos y el tiempo de termalizacion\n");
     printf("\t '2' \t Ejecuta el punto 2, pide rho\n");
-    printf("\t '3' \t Ejecuta el punto 3, pide rho\n\n");
+    printf("\t '3' \t Ejecuta el punto 3, pide rho\n");
+    printf("\t 'p' \t hit p for pasta!\n\n");
+
   }
 
 //----------------------------------------------------------------------------------
@@ -624,6 +627,111 @@ int main(int argc, char const *argv[]) {
     secs = time(NULL)-secs;
     printf("%d hs %d mins, %d segs\n", secs/3600, (secs/60)%60, secs%60);
   }
+
+  if(opcion=='p'){
+    double T;
+    int n=33;
+    int N_muestras=100;  // Cantidad de muestras por temperatura
+    int Term = 2000;
+    double rho=0.5;
+    if(argc>2) sscanf(argv[2],"%lg",&rho);
+    if(argc>3) sscanf(argv[3],"%d",&n);
+    if(argc>4) sscanf(argv[4], "%d", &N_muestras);
+    if(argc>5) sscanf(argv[5], "%d", &Term);
+    //if(argc>6) sscanf(argv[6], "%d", &Term);
+    int secs = time(NULL);
+    int N = 512;
+    double m = 1;
+    double h = 1.0E-4;
+    double* vector = malloc(6*N*sizeof(double));
+    double* vector_fuerza=malloc(3*N*sizeof(double));
+    double* Tvec = malloc(n*sizeof(double));
+    double* Ecin = malloc(n*sizeof(double));
+    double* Etot = malloc(n*sizeof(double));
+    double* P = malloc(n*sizeof(double));
+
+    double* LUTF;
+    double* LUTP;
+    int Ntable = leer_tablas(&LUTP, &LUTF);
+    char namePDB[100];
+    FILE *fs;
+
+    srand(time(NULL));
+
+    Tvec[0] = 1.7;
+    for(int i=1;i<n-3;i++) Tvec[i] = Tvec[i-1] - 0.1;
+    Tvec[n-3] = 0.01;
+    Tvec[n-2] = 0.001;
+    Tvec[n-1] = 0.0001;
+    T=Tvec[0];
+
+    double L = Inicializar(vector,vector_fuerza, N,LUTF,Ntable, rho, m,T);
+    double Vol = L*L*L;
+    double T_deseada;
+    double Pex;
+
+
+
+  // Temperatura inicial Tmax
+    printf("Calculando T = %1.4f\n", T);
+    for(int i=0;i<Term;i++){
+      Verlet(vector,&vector_fuerza,N,LUTF, Ntable,m,h,L);
+    }
+    sprintf(namePDB,"data_T_%1.4f.pdb",T);
+    fs = fopen(namePDB,"w");
+    for(int i=0;i<N_muestras;i++){
+      Pex = Verlet(vector,&vector_fuerza,N,LUTF, Ntable,m,h,L);
+      Ecin[0] = Energia_Cinetica(vector,N,m);
+      Etot[0] = Ecin[0] + Energia_Potencial(vector,  N,  LUTP,  Ntable,  L);
+      P[0] = Presion(Pex, Ecin[0], Vol);
+      if(i%(N_muestras/100)==0) printf("N = %d, T = %f, Paso %d de %d\n", N,T,i,N_muestras);
+      if(i%10==0) Grabar_PDB(vector,N,L,fs);
+    }
+    fclose(fs);
+
+    for(int t=1;t<n;t++){
+      //T_deseada = T - (Tmax-Tmin)/(n-1);
+      T_deseada = Tvec[t];
+      Reescalar_Vel(vector,N,sqrt(T_deseada/T));
+      T = T_deseada;
+      printf("Calculando T = %1.4f\n", T);
+      for(int i=0;i<4*Term/n;i++){
+        Verlet(vector,&vector_fuerza,N,LUTF, Ntable,m,h,L);
+      }
+      if(T<0.8){
+        sprintf(namePDB,"data_T_%1.4f.pdb",T);
+        fs = fopen(namePDB,"w");
+        for(int i=0;i<N_muestras;i++){
+          Pex = Verlet(vector,&vector_fuerza,N,LUTF, Ntable,m,h,L);
+          Ecin[t] = Ecin[t] + Energia_Cinetica(vector,N,m)/N_muestras;
+          Etot[t] = Etot[t] + Energia_Potencial(vector,  N,  LUTP,  Ntable,  L)/N_muestras;
+          P[t] = P[t]+Pex/N_muestras;
+          if(i%(N_muestras/100)==0) printf("N = %d, T = %f, Paso %d de %d\n", N,T,i,N_muestras);
+          if(i%10==0) Grabar_PDB(vector,N,L,fs);
+        }
+        P[t] = Presion(P[t],Ecin[t],Vol);
+        Etot[t] = Etot[t]+Ecin[t];
+        fclose(fs);
+      }
+    }
+    char name[100];
+    sprintf(name, "22_E_P_%d_%1.4f.txt",N, rho);
+    FILE* fp = fopen(name, "w");   // >>>>>>> LOS DATOS SE GUARDAN EN [COLUMNAS] <<<<<
+    for(int i=0;i<n;i++) fprintf(fp, "%lg %lg %lg\n", Ecin[i], Etot[i], P[i]);
+
+    fclose(fp);
+
+    free(Ecin);
+    free(Etot);
+    free(P);
+    free(vector);
+    free(vector_fuerza);
+    free(LUTP);
+    free(LUTF);
+    secs = time(NULL)-secs;
+    printf("En total fueron %d hs %d mins, %d segs\n", secs/3600, (secs/60)%60, secs%60);
+  }
+
 
   return 0;
 }

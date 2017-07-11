@@ -5,7 +5,7 @@
 
 int Grabar_PDB(double *vector_posvel, int N, double L, FILE *fs){
 
-  double s = 5; //s es un factor de escala y tiene que estar entre 0 y 9.9999 para que no se vaya de lugar las ubicaciones
+  double s = 9; //s es un factor de escala y tiene que estar entre 0 y 9.9999 para que no se vaya de lugar las ubicaciones
 
   fprintf(fs, "CRYST1%08.4f %08.4f %08.4f %06.2f %06.2f %06.2f\n",s,s,s,90.0,90.0,90.0);
 
