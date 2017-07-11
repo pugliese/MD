@@ -792,6 +792,7 @@ int main(int argc, char const *argv[]) {
     free(vector_fuerza);
     free(LUTP);
     free(LUTF);
+    free(Tvec);
     secs = time(NULL)-secs;
     printf("En total fueron %d hs %d mins, %d segs\n", secs/3600, (secs/60)%60, secs%60);
   }
